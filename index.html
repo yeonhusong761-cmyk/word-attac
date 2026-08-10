@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Word Attack ⚔️</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#101827;color:#fff;min-height:100vh}
+.wrap{max-width:900px;margin:auto;padding:24px}
+h1{text-align:center;font-size:42px;margin:10px 0 24px}
+.card{background:#1b263b;border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 8px 30px #0004}
+input,button{font-size:18px;padding:12px 15px;border-radius:10px;border:0;margin:5px}
+input{width:220px}
+button{cursor:pointer;background:#4f8cff;color:white;font-weight:bold}
+button:hover{filter:brightness(1.12)}
+.hidden{display:none}
+.row{display:flex;gap:15px;flex-wrap:wrap}
+.team{flex:1;min-width:280px;border-radius:16px;padding:18px;text-align:center}
+.blue{background:#164e8a}.red{background:#8a2635}
+.hpbar{height:24px;background:#111;border-radius:20px;overflow:hidden;margin:12px 0}
+.hp{height:100%;width:100%;transition:.3s}
+.blue .hp{background:#42a5ff}.red .hp{background:#ff5268}
+#meaning{font-size:38px;font-weight:bold;text-align:center;margin:25px}
+#question{font-size:20px;text-align:center;color:#b9c5d6}
+#status{text-align:center;font-size:20px;min-height:30px}
+.players{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.player{background:#24344e;padding:9px;border-radius:8px}
+.small{font-size:14px;color:#aeb9c9}
+.teamlist{margin-top:10px;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>⚔️ WORD ATTACK</h1>
+
+<div id="login" class="card">
+<h2>🎮 게임 참가</h2>
+<input id="name" placeholder="닉네임" maxlength="12">
+<input id="room" placeholder="방 코드" maxlength="8">
+<div>
+<button onclick="createRoom()">🏠 방 만들기</button>
+<button onclick="joinRoom()">🔑 방 참가</button>
+</div>
+<p class="small">최대 10명 · 5 vs 5 · 초급 영어 단어</p>
+</div>
+
+<div id="lobby" class="hidden">
+<div class="card">
+<h2>🏠 방 <span id="roomCode"></span></h2>
+<p>참가자: <b id="count">0</b>/10</p>
+<div class="players" id="players"></div>
+<br>
+<button id="startBtn" onclick="startGame()">⚔️ 게임 시작</button>
+<p id="lobbyMsg" class="small"></p>
+</div>
+</div>
+
+<div id="game" class="hidden">
+<div class="row">
+<div class="team blue">
+<h2>🔵 BLUE</h2>
+<div>HP <span id="blueHpText">100</span></div>
+<div class="hpbar"><div id="blueHp" class="hp"></div></div>
+<div id="bluePlayers" class="teamlist"></div>
+</div>
+<div class="team red">
+<h2>🔴 RED</h2>
+<div>HP <span id="redHpText">100</span></div>
+<div class="hpbar"><div id="redHp" class="hp"></div></div>
+<div id="redPlayers" class="teamlist"></div>
+</div>
+</div>
+
+<div class="card">
+<div id="question">문제가 준비되는 중...</div>
+<div id="meaning">-</div>
+<div style="text-align:center">
+<input id="answer" placeholder="영어 단어 입력" autocomplete="off">
+<button id="attackBtn" onclick="submitAnswer()">⚔️ ATTACK!</button>
+</div>
+<p id="status"></p>
+</div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+import {
+  getDatabase, ref, set, get, update, onValue, runTransaction
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD8zntMXwRxfwEuUTzETCNXoXl_a24iI5A",
+  authDomain: "word-attack-d4d0a.firebaseapp.com",
+  databaseURL: "https://word-attack-d4d0a-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "word-attack-d4d0a",
+  storageBucket: "word-attack-d4d0a.firebasestorage.app",
+  messagingSenderId: "759642464438",
+  appId: "1:759642464438:web:d4375af68b5cab144d8617",
+  measurementId: "G-5GH5X4XMLZ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+const WORDS = [
+ ["사과","apple"],["강아지","dog"],["고양이","cat"],["책","book"],
+ ["학교","school"],["물","water"],["우유","milk"],["집","house"],
+ ["친구","friend"],["선생님","teacher"],["엄마","mom"],["아빠","dad"],
+ ["먹다","eat"],["마시다","drink"],["가다","go"],["오다","come"],
+ ["달리다","run"],["걷다","walk"],["보다","see"],["좋아하다","like"],
+ ["크다","big"],["작다","small"],["빠른","fast"],["느린","slow"],
+ ["행복한","happy"],["뜨거운","hot"],["차가운","cold"],
+ ["빨간","red"],["파란","blue"],["하나","one"]
+];
+
+let myId = crypto.randomUUID();
+let myName = "";
+let roomId = "";
+let myTeam = "";
+let roomData = null;
+let unsubscribe = null;
+
+const $ = id => document.getElementById(id);
+
+function randomRoom(){
+  return Math.random().toString(36).substring(2,7).toUpperCase();
+}
+function randomWord(){
+  return WORDS[Math.floor(Math.random()*WORDS.length)];
+}
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g,c=>({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[c]));
+}
+
+window.createRoom = async () => {
+  myName = $("name").value.trim();
+  if(!myName) return alert("닉네임을 입력해!");
+
+  roomId = randomRoom();
+  myTeam = "blue";
+
+  await set(ref(db, `rooms/${roomId}`), {
+    host: myId,
+    status: "lobby",
+    blueHp: 100,
+    redHp: 100,
+    question: "",
+    answer: "",
+    round: 0,
+    players: {
+      [myId]: {name: myName, team: myTeam}
+    }
+  });
+
+  enterLobby();
+};
+
+window.joinRoom = async () => {
+  myName = $("name").value.trim();
+  roomId = $("room").value.trim().toUpperCase();
+
+  if(!myName || !roomId)
+    return alert("닉네임과 방 코드를 입력해!");
+
+  const snap = await get(ref(db, `rooms/${roomId}`));
+  if(!snap.exists())
+    return alert("그 방이 없어!");
+
+  const data = snap.val();
+  if(data.status !== "lobby")
+    return alert("이미 게임이 시작된 방이야!");
+
+  const players = data.players || {};
+  const ids = Object.keys(players);
+
+  if(ids.length >= 10)
+    return alert("방이 꽉 찼어!");
+
+  const blue = Object.values(players).filter(p=>p.team==="blue").length;
+  const red = Object.values(players).filter(p=>p.team==="red").length;
+  myTeam = blue <= red ? "blue" : "red";
+
+  await update(ref(db, `rooms/${roomId}/players/${myId}`), {
+    name: myName,
+    team: myTeam
+  });
+
+  enterLobby();
+};
+
+function enterLobby(){
+  $("login").classList.add("hidden");
+  $("lobby").classList.remove("hidden");
+  $("roomCode").textContent = roomId;
+  listen();
+}
+
+function listen(){
+  if(unsubscribe) unsubscribe();
+
+  unsubscribe = onValue(ref(db, `rooms/${roomId}`), snap => {
+    roomData = snap.val();
+    if(!roomData) return;
+
+    renderLobby();
+
+    if(roomData.status === "playing" || roomData.status === "finished"){
+      $("lobby").classList.add("hidden");
+      $("game").classList.remove("hidden");
+      renderGame();
+    }
+  });
+}
+
+function renderLobby(){
+  const players = roomData.players || {};
+  const arr = Object.entries(players);
+
+  $("count").textContent = arr.length;
+
+  $("players").innerHTML = arr.map(([id,p]) =>
+    `<div class="player">${p.team==="blue"?"🔵":"🔴"} ${escapeHtml(p.name)} ${id===roomData.host?"👑":""}</div>`
+  ).join("");
+
+  $("startBtn").style.display =
+    roomData.host === myId ? "inline-block" : "none";
+
+  $("lobbyMsg").textContent =
+    roomData.host === myId
+      ? "사람이 모이면 게임 시작!"
+      : "방장이 게임을 시작할 때까지 기다려!";
+}
+
+window.startGame = async () => {
+  if(roomData.host !== myId) return;
+
+  const w = randomWord();
+
+  await update(ref(db, `rooms/${roomId}`), {
+    status: "playing",
+    blueHp: 100,
+    redHp: 100,
+    question: w[0],
+    answer: w[1],
+    round: 1,
+    lastAttacker: "",
+    lastMessage: ""
+  });
+};
+
+function renderGame(){
+  const b = Math.max(0, roomData.blueHp ?? 100);
+  const r = Math.max(0, roomData.redHp ?? 100);
+
+  $("blueHpText").textContent = b;
+  $("redHpText").textContent = r;
+  $("blueHp").style.width = b + "%";
+  $("redHp").style.width = r + "%";
+  $("meaning").textContent = roomData.question || "-";
+
+  const players = roomData.players || {};
+
+  $("bluePlayers").innerHTML = Object.values(players)
+    .filter(p=>p.team==="blue")
+    .map(p=>`👤 ${escapeHtml(p.name)}`).join("<br>");
+
+  $("redPlayers").innerHTML = Object.values(players)
+    .filter(p=>p.team==="red")
+    .map(p=>`👤 ${escapeHtml(p.name)}`).join("<br>");
+
+  if(roomData.lastMessage)
+    $("status").textContent = roomData.lastMessage;
+
+  if(roomData.status === "finished"){
+    $("attackBtn").disabled = true;
+    $("answer").disabled = true;
+
+    const winner = b <= 0 ? "🔴 RED" : "🔵 BLUE";
+    $("status").textContent = `🏆 ${winner} 팀 승리!`;
+  }
+}
+
+window.submitAnswer = async () => {
+  if(!roomData || roomData.status !== "playing") return;
+
+  const input = $("answer");
+  const answer = input.value.trim().toLowerCase();
+  input.value = "";
+
+  if(!answer) return;
+
+  if(answer !== String(roomData.answer).toLowerCase()){
+    $("status").textContent = "❌ 오답! 다시 공격해!";
+    return;
+  }
+
+  /*
+    round를 트랜잭션으로 증가시켜 같은 문제를
+    여러 명이 동시에 맞혔을 때 한 명만 처리되게 한다.
+  */
+  const roundRef = ref(db, `rooms/${roomId}/round`);
+
+  const result = await runTransaction(roundRef, current => {
+    if(current !== roomData.round) return;
+    return current + 1;
+  });
+
+  if(!result.committed) return;
+
+  const enemy = myTeam === "blue" ? "redHp" : "blueHp";
+  const currentHp = roomData[enemy] ?? 100;
+  const newHp = Math.max(0, currentHp - 10);
+
+  if(newHp <= 0){
+    await update(ref(db, `rooms/${roomId}`), {
+      [enemy]: 0,
+      status: "finished",
+      lastAttacker: myName,
+      lastMessage: `💥 ${myName}의 공격! 게임 종료!`
+    });
+    return;
+  }
+
+  const w = randomWord();
+
+  await update(ref(db, `rooms/${roomId}`), {
+    [enemy]: newHp,
+    question: w[0],
+    answer: w[1],
+    lastAttacker: myName,
+    lastMessage:
+      `⚔️ ${myName} 정답! ${myTeam==="blue"?"🔴":"🔵"} 팀 HP -10!`
+  });
+};
+
+$("answer").addEventListener("keydown", e => {
+  if(e.key === "Enter") submitAnswer();
+});
+</script>
+</body>
+</html>
