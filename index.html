@@ -3,343 +3,1767 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Word Attack ⚔️</title>
+<title>Word Attack 5v5 ⚔️</title>
+
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,sans-serif;background:#101827;color:#fff;min-height:100vh}
-.wrap{max-width:900px;margin:auto;padding:24px}
-h1{text-align:center;font-size:42px;margin:10px 0 24px}
-.card{background:#1b263b;border-radius:18px;padding:22px;margin:14px 0;box-shadow:0 8px 30px #0004}
-input,button{font-size:18px;padding:12px 15px;border-radius:10px;border:0;margin:5px}
-input{width:220px}
-button{cursor:pointer;background:#4f8cff;color:white;font-weight:bold}
-button:hover{filter:brightness(1.12)}
-.hidden{display:none}
-.row{display:flex;gap:15px;flex-wrap:wrap}
-.team{flex:1;min-width:280px;border-radius:16px;padding:18px;text-align:center}
-.blue{background:#164e8a}.red{background:#8a2635}
-.hpbar{height:24px;background:#111;border-radius:20px;overflow:hidden;margin:12px 0}
-.hp{height:100%;width:100%;transition:.3s}
-.blue .hp{background:#42a5ff}.red .hp{background:#ff5268}
-#meaning{font-size:38px;font-weight:bold;text-align:center;margin:25px}
-#question{font-size:20px;text-align:center;color:#b9c5d6}
-#status{text-align:center;font-size:20px;min-height:30px}
-.players{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.player{background:#24344e;padding:9px;border-radius:8px}
-.small{font-size:14px;color:#aeb9c9}
-.teamlist{margin-top:10px;line-height:1.8}
+
+body{
+    margin:0;
+    background:#0b1220;
+    color:#fff;
+    font-family:Arial,sans-serif
+}
+
+.wrap{
+    max-width:1050px;
+    margin:auto;
+    padding:20px
+}
+
+h1{
+    text-align:center;
+    font-size:42px;
+    margin:8px
+}
+
+.card{
+    background:#172235;
+    border-radius:18px;
+    padding:20px;
+    margin:14px 0;
+    box-shadow:0 8px 30px #0005
+}
+
+input,button,select{
+    font-size:17px;
+    padding:11px 14px;
+    border:0;
+    border-radius:10px;
+    margin:4px
+}
+
+input{
+    width:220px
+}
+
+button{
+    background:#4285f4;
+    color:#fff;
+    font-weight:bold;
+    cursor:pointer
+}
+
+button:hover{
+    filter:brightness(1.15)
+}
+
+button:disabled{
+    opacity:.45;
+    cursor:not-allowed
+}
+
+.hidden{
+    display:none
+}
+
+.row{
+    display:flex;
+    gap:14px;
+    flex-wrap:wrap
+}
+
+.team{
+    flex:1;
+    min-width:300px;
+    border-radius:16px;
+    padding:16px
+}
+
+.blue{
+    background:#123e70
+}
+
+.red{
+    background:#701d2a
+}
+
+.hpbar{
+    height:22px;
+    background:#090d15;
+    border-radius:20px;
+    overflow:hidden
+}
+
+.hp{
+    height:100%;
+    transition:.35s
+}
+
+.blue .hp{
+    background:#37a7ff
+}
+
+.red .hp{
+    background:#ff5068
+}
+
+.players{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:7px
+}
+
+.player{
+    background:#ffffff18;
+    padding:8px;
+    border-radius:8px
+}
+
+#meaning{
+    font-size:40px;
+    text-align:center;
+    font-weight:bold;
+    margin:20px
+}
+
+#question{
+    text-align:center;
+    color:#aebbd0
+}
+
+#status{
+    text-align:center;
+    min-height:28px;
+    font-size:19px
+}
+
+.classgrid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px
+}
+
+.classbtn{
+    padding:15px;
+    background:#263750;
+    border:2px solid transparent
+}
+
+.classbtn.selected{
+    border-color:#fff;
+    background:#36537d
+}
+
+.classbtn b{
+    display:block;
+    font-size:21px;
+    margin-bottom:6px
+}
+
+.small{
+    font-size:13px;
+    color:#aebbd0
+}
+
+#arena{
+    position:relative;
+    height:150px;
+    background:linear-gradient(#101b2d,#0d1727);
+    border-radius:14px;
+    overflow:hidden;
+    margin-bottom:15px
+}
+
+.fighter{
+    position:absolute;
+    font-size:42px;
+    top:45px;
+    transition:.2s
+}
+
+.f1{
+    left:8%
+}
+
+.f2{
+    right:8%
+}
+
+.beam{
+    position:absolute;
+    top:67px;
+    height:8px;
+    border-radius:8px;
+    animation:shoot .45s linear forwards
+}
+
+@keyframes shoot{
+    from{
+        width:0
+    }
+    to{
+        width:84%
+    }
+}
+
+.blueBeam{
+    left:8%;
+    background:#55c7ff
+}
+
+.redBeam{
+    right:8%;
+    background:#ff6075
+}
+
+@media(max-width:700px){
+
+    .classgrid{
+        grid-template-columns:1fr 1fr
+    }
+
+    #meaning{
+        font-size:32px
+    }
+}
 </style>
 </head>
+
 <body>
+
 <div class="wrap">
-<h1>⚔️ WORD ATTACK</h1>
 
+<h1>⚔️ WORD ATTACK 5v5</h1>
+
+
+<!-- 로그인 -->
 <div id="login" class="card">
-<h2>🎮 게임 참가</h2>
-<input id="name" placeholder="닉네임" maxlength="12">
-<input id="room" placeholder="방 코드" maxlength="8">
-<div>
-<button onclick="createRoom()">🏠 방 만들기</button>
-<button onclick="joinRoom()">🔑 방 참가</button>
-</div>
-<p class="small">최대 10명 · 5 vs 5 · 초급 영어 단어</p>
-</div>
 
-<div id="lobby" class="hidden">
-<div class="card">
-<h2>🏠 방 <span id="roomCode"></span></h2>
-<p>참가자: <b id="count">0</b>/10</p>
-<div class="players" id="players"></div>
+<h2>🎮 입장</h2>
+
+<input
+    id="name"
+    maxlength="12"
+    placeholder="닉네임"
+>
+
+<input
+    id="room"
+    maxlength="8"
+    placeholder="방 코드"
+>
+
 <br>
-<button id="startBtn" onclick="startGame()">⚔️ 게임 시작</button>
-<p id="lobbyMsg" class="small"></p>
-</div>
+
+<button onclick="createRoom()">
+🏠 방 만들기
+</button>
+
+<button onclick="joinRoom()">
+🔑 방 참가
+</button>
+
+<p class="small">
+최대 10명 · 자동 5 vs 5 · 실시간 팀전
+</p>
+
 </div>
 
+
+<!-- 클래스 선택 -->
+<div id="classSelect" class="card hidden">
+
+<h2>🧑‍🚀 클래스 선택</h2>
+
+<p class="muted">
+클래스는 게임 중 변경할 수 없어.
+</p>
+
+<div class="classgrid">
+
+<button
+    class="classbtn"
+    data-class="rusher"
+    onclick="pickClass('rusher')"
+>
+<b>⚡ RUSHER</b>
+공격 +20%
+</button>
+
+<button
+    class="classbtn"
+    data-class="guardian"
+    onclick="pickClass('guardian')"
+>
+<b>🛡️ GUARDIAN</b>
+받는 피해 -20%
+</button>
+
+<button
+    class="classbtn"
+    data-class="sniper"
+    onclick="pickClass('sniper')"
+>
+<b>🎯 SNIPER</b>
+어려운 단어 공격 강화
+</button>
+
+<button
+    class="classbtn"
+    data-class="support"
+    onclick="pickClass('support')"
+>
+<b>💚 SUPPORT</b>
+팀 HP 회복 능력
+</button>
+
+</div>
+
+<button onclick="confirmClass()">
+✅ 선택 완료
+</button>
+
+<p id="classStatus" class="small"></p>
+
+</div>
+
+
+<!-- 로비 -->
+<div id="lobby" class="hidden card">
+
+<h2>
+🏠 방 <span id="roomCode"></span>
+</h2>
+
+<p>
+참가자 <b id="count">0</b>/10
+</p>
+
+<div
+    id="players"
+    class="players"
+></div>
+
+<br>
+
+<button
+    id="startBtn"
+    onclick="startGame()"
+>
+⚔️ 게임 시작
+</button>
+
+<p
+    id="lobbyMsg"
+    class="small"
+></p>
+
+</div>
+
+
+<!-- 게임 -->
 <div id="game" class="hidden">
+
+
 <div class="row">
+
+
+<!-- BLUE -->
 <div class="team blue">
-<h2>🔵 BLUE</h2>
-<div>HP <span id="blueHpText">100</span></div>
-<div class="hpbar"><div id="blueHp" class="hp"></div></div>
-<div id="bluePlayers" class="teamlist"></div>
-</div>
-<div class="team red">
-<h2>🔴 RED</h2>
-<div>HP <span id="redHpText">100</span></div>
-<div class="hpbar"><div id="redHp" class="hp"></div></div>
-<div id="redPlayers" class="teamlist"></div>
-</div>
+
+<h2>
+🔵 BLUE
+<span id="blueHpText">100</span>
+HP
+</h2>
+
+<div class="hpbar">
+<div
+    id="blueHp"
+    class="hp"
+></div>
 </div>
 
+<div
+    id="bluePlayers"
+    class="players"
+></div>
+
+</div>
+
+
+<!-- RED -->
+<div class="team red">
+
+<h2>
+🔴 RED
+<span id="redHpText">100</span>
+HP
+</h2>
+
+<div class="hpbar">
+
+<div
+    id="redHp"
+    class="hp"
+></div>
+
+</div>
+
+<div
+    id="redPlayers"
+    class="players"
+></div>
+
+</div>
+
+</div>
+
+
+<!-- 전투 -->
 <div class="card">
-<div id="question">문제가 준비되는 중...</div>
-<div id="meaning">-</div>
+
+<div id="arena">
+
+<div class="fighter f1">
+🧑‍🚀
+</div>
+
+<div class="fighter f2">
+🤖
+</div>
+
+</div>
+
+
+<p id="question">
+초급 문제
+</p>
+
+<div id="meaning">
+-
+</div>
+
+
 <div style="text-align:center">
-<input id="answer" placeholder="영어 단어 입력" autocomplete="off">
-<button id="attackBtn" onclick="submitAnswer()">⚔️ ATTACK!</button>
+
+<input
+    id="answer"
+    placeholder="영어 단어 입력"
+    autocomplete="off"
+>
+
+<button
+    id="attackBtn"
+    onclick="submitAnswer()"
+>
+⚡ ATTACK!
+</button>
+
 </div>
+
+
 <p id="status"></p>
+
 </div>
+
 </div>
+
 </div>
+
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
 import {
-  getDatabase, ref, set, get, update, onValue, runTransaction
+    initializeApp
+} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+
+
+import {
+    getDatabase,
+    ref,
+    set,
+    get,
+    update,
+    onValue,
+    runTransaction
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
+
+
+/* =========================
+   FIREBASE
+========================= */
+
 const firebaseConfig = {
-  apiKey: "AIzaSyD8zntMXwRxfwEuUTzETCNXoXl_a24iI5A",
-  authDomain: "word-attack-d4d0a.firebaseapp.com",
-  databaseURL: "https://word-attack-d4d0a-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "word-attack-d4d0a",
-  storageBucket: "word-attack-d4d0a.firebasestorage.app",
-  messagingSenderId: "759642464438",
-  appId: "1:759642464438:web:d4375af68b5cab144d8617",
-  measurementId: "G-5GH5X4XMLZ"
+
+    apiKey:
+    "AIzaSyD8zntMXwRxfwEuUTzETCNXoXl_a24iI5A",
+
+    authDomain:
+    "word-attack-d4d0a.firebaseapp.com",
+
+    databaseURL:
+    "https://word-attack-d4d0a-default-rtdb.asia-southeast1.firebasedatabase.app",
+
+    projectId:
+    "word-attack-d4d0a",
+
+    storageBucket:
+    "word-attack-d4d0a.firebasestorage.app",
+
+    messagingSenderId:
+    "759642464438",
+
+    appId:
+    "1:759642464438:web:d4375af68b5cab144d8617",
+
+    measurementId:
+    "G-5GH5X4XMLZ"
 };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+
+const app =
+    initializeApp(firebaseConfig);
+
+const db =
+    getDatabase(app);
+
+
+
+/* =========================
+   영어 단어
+========================= */
 
 const WORDS = [
- ["사과","apple"],["강아지","dog"],["고양이","cat"],["책","book"],
- ["학교","school"],["물","water"],["우유","milk"],["집","house"],
- ["친구","friend"],["선생님","teacher"],["엄마","mom"],["아빠","dad"],
- ["먹다","eat"],["마시다","drink"],["가다","go"],["오다","come"],
- ["달리다","run"],["걷다","walk"],["보다","see"],["좋아하다","like"],
- ["크다","big"],["작다","small"],["빠른","fast"],["느린","slow"],
- ["행복한","happy"],["뜨거운","hot"],["차가운","cold"],
- ["빨간","red"],["파란","blue"],["하나","one"]
+
+    ["사과","apple","easy"],
+    ["강아지","dog","easy"],
+    ["고양이","cat","easy"],
+    ["책","book","easy"],
+    ["학교","school","easy"],
+    ["물","water","easy"],
+    ["집","house","easy"],
+    ["친구","friend","easy"],
+    ["먹다","eat","easy"],
+    ["가다","go","easy"],
+    ["달리다","run","easy"],
+    ["보다","see","easy"],
+    ["큰","big","easy"],
+    ["작은","small","easy"],
+    ["행복한","happy","easy"],
+
+    ["아름다운","beautiful","normal"],
+    ["가족","family","normal"],
+    ["여행","travel","normal"],
+    ["동물","animal","normal"],
+    ["아침","morning","normal"],
+
+    ["환경","environment","hard"],
+    ["모험","adventure","hard"],
+    ["갑자기","suddenly","hard"],
+    ["필요한","necessary","hard"]
+
 ];
 
-let myId = crypto.randomUUID();
+
+
+/* =========================
+   변수
+========================= */
+
+let myId =
+    crypto.randomUUID();
+
 let myName = "";
+
 let roomId = "";
+
 let myTeam = "";
+
+let myClass = "";
+
 let roomData = null;
-let unsubscribe = null;
 
-const $ = id => document.getElementById(id);
+let unsub = null;
 
-function randomRoom(){
-  return Math.random().toString(36).substring(2,7).toUpperCase();
+
+
+const $ =
+    x => document.getElementById(x);
+
+
+
+function esc(s){
+
+    return String(s).replace(
+        /[&<>"']/g,
+
+        c => ({
+            "&":"&amp;",
+            "<":"&lt;",
+            ">":"&gt;",
+            '"':"&quot;",
+            "'":"&#039;"
+        }[c])
+    );
+
 }
-function randomWord(){
-  return WORDS[Math.floor(Math.random()*WORDS.length)];
+
+
+
+function word(){
+
+    return WORDS[
+        Math.floor(
+            Math.random() *
+            WORDS.length
+        )
+    ];
+
 }
-function escapeHtml(s){
-  return String(s).replace(/[&<>"']/g,c=>({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[c]));
+
+
+
+function roomCode(){
+
+    return Math
+        .random()
+        .toString(36)
+        .slice(2,7)
+        .toUpperCase();
+
 }
 
-window.createRoom = async () => {
-  myName = $("name").value.trim();
-  if(!myName) return alert("닉네임을 입력해!");
 
-  roomId = randomRoom();
-  myTeam = "blue";
 
-  await set(ref(db, `rooms/${roomId}`), {
-    host: myId,
-    status: "lobby",
-    blueHp: 100,
-    redHp: 100,
-    question: "",
-    answer: "",
-    round: 0,
-    players: {
-      [myId]: {name: myName, team: myTeam}
+/* =========================
+   방 만들기
+========================= */
+
+window.createRoom =
+async function(){
+
+    myName =
+        $("name")
+        .value
+        .trim();
+
+    if(!myName){
+
+        alert("닉네임을 입력해!");
+
+        return;
     }
-  });
 
-  enterLobby();
+
+    roomId =
+        roomCode();
+
+    myTeam =
+        "blue";
+
+
+    await set(
+
+        ref(
+            db,
+            `rooms/${roomId}`
+        ),
+
+        {
+
+            host:myId,
+
+            status:"lobby",
+
+            blueHp:100,
+
+            redHp:100,
+
+            question:"",
+
+            answer:"",
+
+            difficulty:"easy",
+
+            round:0,
+
+            players:{
+
+                [myId]:{
+
+                    name:myName,
+
+                    team:"blue",
+
+                    class:""
+
+                }
+
+            }
+
+        }
+
+    );
+
+
+    showClass();
+
 };
 
-window.joinRoom = async () => {
-  myName = $("name").value.trim();
-  roomId = $("room").value.trim().toUpperCase();
 
-  if(!myName || !roomId)
-    return alert("닉네임과 방 코드를 입력해!");
 
-  const snap = await get(ref(db, `rooms/${roomId}`));
-  if(!snap.exists())
-    return alert("그 방이 없어!");
+/* =========================
+   방 참가
+========================= */
 
-  const data = snap.val();
-  if(data.status !== "lobby")
-    return alert("이미 게임이 시작된 방이야!");
+window.joinRoom =
+async function(){
 
-  const players = data.players || {};
-  const ids = Object.keys(players);
+    myName =
+        $("name")
+        .value
+        .trim();
 
-  if(ids.length >= 10)
-    return alert("방이 꽉 찼어!");
 
-  const blue = Object.values(players).filter(p=>p.team==="blue").length;
-  const red = Object.values(players).filter(p=>p.team==="red").length;
-  myTeam = blue <= red ? "blue" : "red";
+    roomId =
+        $("room")
+        .value
+        .trim()
+        .toUpperCase();
 
-  await update(ref(db, `rooms/${roomId}/players/${myId}`), {
-    name: myName,
-    team: myTeam
-  });
 
-  enterLobby();
+    if(
+        !myName ||
+        !roomId
+    ){
+
+        alert(
+            "닉네임과 방 코드를 입력해!"
+        );
+
+        return;
+    }
+
+
+    let s =
+        await get(
+            ref(
+                db,
+                `rooms/${roomId}`
+            )
+        );
+
+
+    if(!s.exists()){
+
+        alert(
+            "그 방이 없어!"
+        );
+
+        return;
+    }
+
+
+    let d =
+        s.val();
+
+
+    let p =
+        d.players || {};
+
+
+    if(
+        d.status !== "lobby"
+    ){
+
+        alert(
+            "이미 시작된 방이야!"
+        );
+
+        return;
+    }
+
+
+    if(
+        Object.keys(p).length >= 10
+    ){
+
+        alert(
+            "방이 꽉 찼어!"
+        );
+
+        return;
+    }
+
+
+    let blue =
+        Object.values(p)
+        .filter(
+            x => x.team === "blue"
+        )
+        .length;
+
+
+    let red =
+        Object.values(p)
+        .filter(
+            x => x.team === "red"
+        )
+        .length;
+
+
+    myTeam =
+        blue <= red
+        ? "blue"
+        : "red";
+
+
+    showClass();
+
 };
 
-function enterLobby(){
-  $("login").classList.add("hidden");
-  $("lobby").classList.remove("hidden");
-  $("roomCode").textContent = roomId;
-  listen();
+
+
+/* =========================
+   클래스
+========================= */
+
+function showClass(){
+
+    $("login")
+    .classList
+    .add("hidden");
+
+    $("classSelect")
+    .classList
+    .remove("hidden");
+
 }
+
+
+
+window.pickClass =
+function(c){
+
+    myClass = c;
+
+
+    document
+    .querySelectorAll(".classbtn")
+    .forEach(
+
+        x =>
+
+        x.classList.toggle(
+
+            "selected",
+
+            x.dataset.class === c
+
+        )
+
+    );
+
+
+    $("classStatus")
+    .textContent =
+        "선택: "
+        +
+        c.toUpperCase();
+
+};
+
+
+
+window.confirmClass =
+async function(){
+
+    if(!myClass){
+
+        alert(
+            "클래스를 골라!"
+        );
+
+        return;
+    }
+
+
+    let s =
+        await get(
+            ref(
+                db,
+                `rooms/${roomId}`
+            )
+        );
+
+
+    if(!s.exists()){
+
+        alert(
+            "방이 없어!"
+        );
+
+        return;
+    }
+
+
+    let p =
+        s.val().players || {};
+
+
+    if(!p[myId]){
+
+        await update(
+
+            ref(
+                db,
+                `rooms/${roomId}/players/${myId}`
+            ),
+
+            {
+
+                name:myName,
+
+                team:myTeam,
+
+                class:myClass
+
+            }
+
+        );
+
+    }else{
+
+        await update(
+
+            ref(
+                db,
+                `rooms/${roomId}/players/${myId}`
+            ),
+
+            {
+
+                class:myClass
+
+            }
+
+        );
+
+    }
+
+
+    $("classSelect")
+    .classList
+    .add("hidden");
+
+
+    $("lobby")
+    .classList
+    .remove("hidden");
+
+
+    $("roomCode")
+    .textContent =
+        roomId;
+
+
+    listen();
+
+};
+
+
+
+/* =========================
+   실시간 데이터
+========================= */
 
 function listen(){
-  if(unsubscribe) unsubscribe();
 
-  unsubscribe = onValue(ref(db, `rooms/${roomId}`), snap => {
-    roomData = snap.val();
-    if(!roomData) return;
+    if(unsub)
+        unsub();
 
-    renderLobby();
 
-    if(roomData.status === "playing" || roomData.status === "finished"){
-      $("lobby").classList.add("hidden");
-      $("game").classList.remove("hidden");
-      renderGame();
-    }
-  });
+    unsub =
+        onValue(
+
+            ref(
+                db,
+                `rooms/${roomId}`
+            ),
+
+            s => {
+
+                roomData =
+                    s.val();
+
+
+                if(!roomData)
+                    return;
+
+
+                renderLobby();
+
+
+                if(
+
+                    roomData.status ===
+                    "playing"
+
+                    ||
+
+                    roomData.status ===
+                    "finished"
+
+                ){
+
+                    $("lobby")
+                    .classList
+                    .add("hidden");
+
+
+                    $("game")
+                    .classList
+                    .remove("hidden");
+
+
+                    renderGame();
+
+                }
+
+            }
+
+        );
+
 }
+
+
+
+/* =========================
+   로비
+========================= */
 
 function renderLobby(){
-  const players = roomData.players || {};
-  const arr = Object.entries(players);
 
-  $("count").textContent = arr.length;
+    let p =
+        roomData.players || {};
 
-  $("players").innerHTML = arr.map(([id,p]) =>
-    `<div class="player">${p.team==="blue"?"🔵":"🔴"} ${escapeHtml(p.name)} ${id===roomData.host?"👑":""}</div>`
-  ).join("");
 
-  $("startBtn").style.display =
-    roomData.host === myId ? "inline-block" : "none";
+    let a =
+        Object.entries(p);
 
-  $("lobbyMsg").textContent =
-    roomData.host === myId
-      ? "사람이 모이면 게임 시작!"
-      : "방장이 게임을 시작할 때까지 기다려!";
+
+    $("count")
+    .textContent =
+        a.length;
+
+
+    $("players")
+    .innerHTML =
+
+        a.map(
+
+            ([id,x]) =>
+
+            `<div class="player">
+
+            ${x.team === "blue"
+                ? "🔵"
+                : "🔴"}
+
+            ${esc(x.name)}
+
+            ${classIcon(x.class)}
+
+            ${id === roomData.host
+                ? "👑"
+                : ""}
+
+            </div>`
+
+        ).join("");
+
+
+    $("startBtn")
+    .style
+    .display =
+
+        roomData.host === myId
+        ? "inline-block"
+        : "none";
+
+
+    $("lobbyMsg")
+    .textContent =
+
+        roomData.host === myId
+
+        ? "사람이 모이면 시작!"
+
+        : "방장이 시작할 때까지 기다려!";
+
 }
 
-window.startGame = async () => {
-  if(roomData.host !== myId) return;
 
-  const w = randomWord();
 
-  await update(ref(db, `rooms/${roomId}`), {
-    status: "playing",
-    blueHp: 100,
-    redHp: 100,
-    question: w[0],
-    answer: w[1],
-    round: 1,
-    lastAttacker: "",
-    lastMessage: ""
-  });
+/* =========================
+   클래스 아이콘
+========================= */
+
+function classIcon(c){
+
+    return {
+
+        rusher:"⚡",
+
+        guardian:"🛡️",
+
+        sniper:"🎯",
+
+        support:"💚"
+
+    }[c] || "❔";
+
+}
+
+
+
+/* =========================
+   게임 시작
+========================= */
+
+window.startGame =
+async function(){
+
+    if(
+        roomData.host !== myId
+    )
+        return;
+
+
+    let w =
+        word();
+
+
+    await update(
+
+        ref(
+            db,
+            `rooms/${roomId}`
+        ),
+
+        {
+
+            status:"playing",
+
+            blueHp:100,
+
+            redHp:100,
+
+            question:w[0],
+
+            answer:w[1],
+
+            difficulty:w[2],
+
+            round:1,
+
+            lastMessage:""
+
+        }
+
+    );
+
 };
+
+
+
+/* =========================
+   게임 화면
+========================= */
 
 function renderGame(){
-  const b = Math.max(0, roomData.blueHp ?? 100);
-  const r = Math.max(0, roomData.redHp ?? 100);
 
-  $("blueHpText").textContent = b;
-  $("redHpText").textContent = r;
-  $("blueHp").style.width = b + "%";
-  $("redHp").style.width = r + "%";
-  $("meaning").textContent = roomData.question || "-";
+    let b =
+        Math.max(
+            0,
+            roomData.blueHp ?? 100
+        );
 
-  const players = roomData.players || {};
 
-  $("bluePlayers").innerHTML = Object.values(players)
-    .filter(p=>p.team==="blue")
-    .map(p=>`👤 ${escapeHtml(p.name)}`).join("<br>");
+    let r =
+        Math.max(
+            0,
+            roomData.redHp ?? 100
+        );
 
-  $("redPlayers").innerHTML = Object.values(players)
-    .filter(p=>p.team==="red")
-    .map(p=>`👤 ${escapeHtml(p.name)}`).join("<br>");
 
-  if(roomData.lastMessage)
-    $("status").textContent = roomData.lastMessage;
+    $("blueHpText")
+    .textContent = b;
 
-  if(roomData.status === "finished"){
-    $("attackBtn").disabled = true;
-    $("answer").disabled = true;
 
-    const winner = b <= 0 ? "🔴 RED" : "🔵 BLUE";
-    $("status").textContent = `🏆 ${winner} 팀 승리!`;
-  }
+    $("redHpText")
+    .textContent = r;
+
+
+    $("blueHp")
+    .style
+    .width =
+        b + "%";
+
+
+    $("redHp")
+    .style
+    .width =
+        r + "%";
+
+
+    $("meaning")
+    .textContent =
+        roomData.question || "-";
+
+
+    $("question")
+    .textContent =
+        "난이도: "
+        +
+        String(
+            roomData.difficulty ||
+            "easy"
+        ).toUpperCase();
+
+
+    let p =
+        roomData.players || {};
+
+
+    $("bluePlayers")
+    .innerHTML =
+
+        Object.values(p)
+
+        .filter(
+            x => x.team === "blue"
+        )
+
+        .map(
+
+            x =>
+
+            `<div class="player">
+
+            ${classIcon(x.class)}
+
+            ${esc(x.name)}
+
+            </div>`
+
+        ).join("");
+
+
+    $("redPlayers")
+    .innerHTML =
+
+        Object.values(p)
+
+        .filter(
+            x => x.team === "red"
+        )
+
+        .map(
+
+            x =>
+
+            `<div class="player">
+
+            ${classIcon(x.class)}
+
+            ${esc(x.name)}
+
+            </div>`
+
+        ).join("");
+
+
+    $("status")
+    .textContent =
+        roomData.lastMessage || "";
+
+
+    if(
+        roomData.status ===
+        "finished"
+    ){
+
+        $("attackBtn")
+        .disabled = true;
+
+
+        $("answer")
+        .disabled = true;
+
+
+        $("status")
+        .textContent =
+
+            (
+
+                b <= 0
+                ? "🔴 RED"
+                : "🔵 BLUE"
+
+            )
+
+            +
+
+            " TEAM 승리! 🏆";
+
+    }
+
 }
 
-window.submitAnswer = async () => {
-  if(!roomData || roomData.status !== "playing") return;
 
-  const input = $("answer");
-  const answer = input.value.trim().toLowerCase();
-  input.value = "";
 
-  if(!answer) return;
+/* =========================
+   에너지탄
+========================= */
 
-  if(answer !== String(roomData.answer).toLowerCase()){
-    $("status").textContent = "❌ 오답! 다시 공격해!";
-    return;
-  }
+function shoot(team){
 
-  /*
-    round를 트랜잭션으로 증가시켜 같은 문제를
-    여러 명이 동시에 맞혔을 때 한 명만 처리되게 한다.
-  */
-  const roundRef = ref(db, `rooms/${roomId}/round`);
+    let d =
+        document.createElement(
+            "div"
+        );
 
-  const result = await runTransaction(roundRef, current => {
-    if(current !== roomData.round) return;
-    return current + 1;
-  });
 
-  if(!result.committed) return;
+    d.className =
+        "beam "
+        +
 
-  const enemy = myTeam === "blue" ? "redHp" : "blueHp";
-  const currentHp = roomData[enemy] ?? 100;
-  const newHp = Math.max(0, currentHp - 10);
+        (
+            team === "blue"
+            ? "blueBeam"
+            : "redBeam"
+        );
 
-  if(newHp <= 0){
-    await update(ref(db, `rooms/${roomId}`), {
-      [enemy]: 0,
-      status: "finished",
-      lastAttacker: myName,
-      lastMessage: `💥 ${myName}의 공격! 게임 종료!`
-    });
-    return;
-  }
 
-  const w = randomWord();
+    $("arena")
+    .appendChild(d);
 
-  await update(ref(db, `rooms/${roomId}`), {
-    [enemy]: newHp,
-    question: w[0],
-    answer: w[1],
-    lastAttacker: myName,
-    lastMessage:
-      `⚔️ ${myName} 정답! ${myTeam==="blue"?"🔴":"🔵"} 팀 HP -10!`
-  });
+
+    setTimeout(
+
+        () => d.remove(),
+
+        500
+
+    );
+
+}
+
+
+
+/* =========================
+   공격
+========================= */
+
+window.submitAnswer =
+async function(){
+
+    if(
+        !roomData ||
+        roomData.status !==
+        "playing"
+    )
+        return;
+
+
+    let input =
+        $("answer");
+
+
+    let ans =
+        input.value
+        .trim()
+        .toLowerCase();
+
+
+    input.value = "";
+
+
+    if(!ans)
+        return;
+
+
+    /* 오답 */
+
+    if(
+        ans !==
+        String(
+            roomData.answer
+        ).toLowerCase()
+    ){
+
+        $("status")
+        .textContent =
+            "❌ 오답!";
+
+        return;
+
+    }
+
+
+
+    /* =========================
+       같은 문제 중복 공격 방지
+    ========================= */
+
+    let rr =
+        ref(
+            db,
+            `rooms/${roomId}/round`
+        );
+
+
+    let tx =
+        await runTransaction(
+
+            rr,
+
+            n =>
+
+                n === roomData.round
+                ? n + 1
+                : n
+
+        );
+
+
+    if(!tx.committed)
+        return;
+
+
+
+    /* =========================
+       내 정보
+    ========================= */
+
+    let p =
+        roomData.players || {};
+
+
+    let me =
+        p[myId] || {};
+
+
+    let diff =
+        roomData.difficulty ||
+        "easy";
+
+
+
+    /* =========================
+       기본 데미지
+    ========================= */
+
+    let damage =
+
+        diff === "hard"
+        ? 25
+
+        :
+
+        diff === "normal"
+        ? 15
+
+        :
+
+        10;
+
+
+
+    /* RUSHER */
+
+    if(
+        me.class ===
+        "rusher"
+    ){
+
+        damage =
+            Math.round(
+                damage * 1.2
+            );
+
+    }
+
+
+
+    /* SNIPER */
+
+    if(
+
+        me.class === "sniper"
+
+        &&
+
+        diff === "hard"
+
+    ){
+
+        damage += 10;
+
+    }
+
+
+
+    /* SUPPORT */
+
+    if(
+
+        me.class ===
+        "support"
+
+        &&
+
+        Math.random() < 0.25
+
+    ){
+
+        let own =
+
+            myTeam === "blue"
+            ? "blueHp"
+            : "redHp";
+
+
+        let newOwn =
+
+            Math.min(
+
+                100,
+
+                (
+                    roomData[own]
+                    ?? 100
+                ) + 10
+
+            );
+
+
+        await update(
+
+            ref(
+                db,
+                `rooms/${roomId}`
+            ),
+
+            {
+
+                [own]:newOwn,
+
+                lastMessage:
+                    `💚 ${myName} 지원! 팀 HP +10`
+
+            }
+
+        );
+
+
+        return;
+
+    }
+
+
+
+    /* =========================
+       GUARDIAN
+    ========================= */
+
+    let enemyPlayers =
+
+        Object.values(p)
+
+        .filter(
+            x =>
+            x.team !== myTeam
+        );
+
+
+    let guardianCount =
+
+        enemyPlayers
+
+        .filter(
+            x =>
+            x.class ===
+            "guardian"
+        )
+
+        .length;
+
+
+    if(
+        guardianCount > 0
+    ){
+
+        damage =
+
+            Math.max(
+
+                1,
+
+                Math.round(
+
+                    damage *
+
+                    (
+                        1 -
+
+                        0.2 /
+                        Math.max(
+                            1,
+                            guardianCount
+                        )
+
+                    )
+
+                )
+
+            );
+
+    }
+
+
+
+    /* =========================
+       발사
+    ========================= */
+
+    shoot(myTeam);
+
+
+
+    /* =========================
+       HP 계산
+    ========================= */
+
+    let enemy =
+
+        myTeam === "blue"
+        ? "redHp"
+        : "blueHp";
+
+
+    let hp =
+        roomData[enemy] ??
+        100;
+
+
+    let newHp =
+
+        Math.max(
+
+            0,
+
+            hp - damage
+
+        );
+
+
+
+    /* =========================
+       승리
+    ========================= */
+
+    if(
+        newHp <= 0
+    ){
+
+        await update(
+
+            ref(
+                db,
+                `rooms/${roomId}`
+            ),
+
+            {
+
+                [enemy]:0,
+
+                status:"finished",
+
+                lastMessage:
+                    `💥 ${myName}의 ${String(me.class).toUpperCase()} 공격!`
+
+            }
+
+        );
+
+
+        return;
+
+    }
+
+
+
+    /* =========================
+       다음 문제
+    ========================= */
+
+    let w =
+        word();
+
+
+    await update(
+
+        ref(
+            db,
+            `rooms/${roomId}`
+        ),
+
+        {
+
+            [enemy]:newHp,
+
+            question:w[0],
+
+            answer:w[1],
+
+            difficulty:w[2],
+
+            lastMessage:
+
+                `⚡ ${myName} 정답! ${damage} 데미지!`
+
+        }
+
+    );
+
 };
 
-$("answer").addEventListener("keydown", e => {
-  if(e.key === "Enter") submitAnswer();
-});
+
+
+/* 엔터키 공격 */
+
+$("answer")
+.addEventListener(
+
+    "keydown",
+
+    e => {
+
+        if(
+            e.key === "Enter"
+        )
+            submitAnswer();
+
+    }
+
+);
+
 </script>
+
 </body>
 </html>
