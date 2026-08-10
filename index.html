@@ -2,254 +2,297 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Word Attack 5v5 ⚔️</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Word Attack 5v5</title>
 
 <style>
-*{box-sizing:border-box}
 
-body{
-    margin:0;
-    background:#0b1220;
-    color:#fff;
-    font-family:Arial,sans-serif
+* {
+    box-sizing: border-box;
 }
 
-.wrap{
-    max-width:1050px;
-    margin:auto;
-    padding:20px
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #08111f;
+    color: white;
 }
 
-h1{
-    text-align:center;
-    font-size:42px;
-    margin:8px
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
 }
 
-.card{
-    background:#172235;
-    border-radius:18px;
-    padding:20px;
-    margin:14px 0;
-    box-shadow:0 8px 30px #0005
+h1 {
+    text-align: center;
+    font-size: 42px;
 }
 
-input,button,select{
-    font-size:17px;
-    padding:11px 14px;
-    border:0;
-    border-radius:10px;
-    margin:4px
+.card {
+    background: #16243a;
+    border-radius: 18px;
+    padding: 20px;
+    margin: 15px 0;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
 }
 
-input{
-    width:220px
+.hidden {
+    display: none;
 }
 
-button{
-    background:#4285f4;
-    color:#fff;
-    font-weight:bold;
-    cursor:pointer
+input {
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    margin: 5px;
+    font-size: 16px;
 }
 
-button:hover{
-    filter:brightness(1.15)
+button {
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    margin: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    background: #347ff0;
+    color: white;
 }
 
-button:disabled{
-    opacity:.45;
-    cursor:not-allowed
+button:hover {
+    transform: translateY(-1px);
 }
 
-.hidden{
-    display:none
+button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
-.row{
-    display:flex;
-    gap:14px;
-    flex-wrap:wrap
+/* 팀 */
+
+.teams {
+    display: flex;
+    gap: 15px;
 }
 
-.team{
-    flex:1;
-    min-width:300px;
-    border-radius:16px;
-    padding:16px
+.team {
+    flex: 1;
+    padding: 18px;
+    border-radius: 18px;
 }
 
-.blue{
-    background:#123e70
+.blue {
+    background: #104875;
 }
 
-.red{
-    background:#701d2a
+.red {
+    background: #721f32;
 }
 
-.hpbar{
-    height:22px;
-    background:#090d15;
-    border-radius:20px;
-    overflow:hidden
+.hp-bar {
+    width: 100%;
+    height: 24px;
+    background: #07101c;
+    border-radius: 20px;
+    overflow: hidden;
 }
 
-.hp{
-    height:100%;
-    transition:.35s
+.hp {
+    height: 100%;
+    transition: width 0.3s;
 }
 
-.blue .hp{
-    background:#37a7ff
+.blue-hp {
+    background: #38aaff;
 }
 
-.red .hp{
-    background:#ff5068
+.red-hp {
+    background: #ff5068;
 }
 
-.players{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:7px
+.players {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-top: 12px;
 }
 
-.player{
-    background:#ffffff18;
-    padding:8px;
-    border-radius:8px
+.player {
+    padding: 8px;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.12);
 }
 
-#meaning{
-    font-size:40px;
-    text-align:center;
-    font-weight:bold;
-    margin:20px
+/* 클래스 */
+
+.class-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
 }
 
-#question{
-    text-align:center;
-    color:#aebbd0
+.class-button {
+    background: #263750;
+    border: 3px solid transparent;
+    padding: 20px 10px;
 }
 
-#status{
-    text-align:center;
-    min-height:28px;
-    font-size:19px
+.class-button.selected {
+    border-color: white;
+    background: #3b526f;
 }
 
-.classgrid{
-    display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:10px
+.class-button b {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 8px;
 }
 
-.classbtn{
-    padding:15px;
-    background:#263750;
-    border:2px solid transparent
+#classTimer {
+    text-align: center;
+    font-size: 65px;
+    font-weight: bold;
 }
 
-.classbtn.selected{
-    border-color:#fff;
-    background:#36537d
+/* 전투 */
+
+.arena {
+    height: 150px;
+    background: linear-gradient(
+        #111f33,
+        #091321
+    );
+
+    border-radius: 15px;
+
+    position: relative;
+
+    overflow: hidden;
+
+    margin-bottom: 20px;
 }
 
-.classbtn b{
-    display:block;
-    font-size:21px;
-    margin-bottom:6px
+.fighter {
+    position: absolute;
+    top: 50px;
+    font-size: 45px;
 }
 
-.small{
-    font-size:13px;
-    color:#aebbd0
+.blue-fighter {
+    left: 8%;
 }
 
-#arena{
-    position:relative;
-    height:150px;
-    background:linear-gradient(#101b2d,#0d1727);
-    border-radius:14px;
-    overflow:hidden;
-    margin-bottom:15px
+.red-fighter {
+    right: 8%;
 }
 
-.fighter{
-    position:absolute;
-    font-size:42px;
-    top:45px;
-    transition:.2s
+.bullet {
+    position: absolute;
+    top: 72px;
+    height: 8px;
+    border-radius: 10px;
+    animation: shoot 0.4s linear forwards;
 }
 
-.f1{
-    left:8%
+.blue-shot {
+    left: 10%;
+    background: #4cc8ff;
 }
 
-.f2{
-    right:8%
+.red-shot {
+    right: 10%;
+    background: #ff5068;
 }
 
-.beam{
-    position:absolute;
-    top:67px;
-    height:8px;
-    border-radius:8px;
-    animation:shoot .45s linear forwards
-}
+@keyframes shoot {
 
-@keyframes shoot{
-    from{
-        width:0
-    }
-    to{
-        width:84%
-    }
-}
-
-.blueBeam{
-    left:8%;
-    background:#55c7ff
-}
-
-.redBeam{
-    right:8%;
-    background:#ff6075
-}
-
-@media(max-width:700px){
-
-    .classgrid{
-        grid-template-columns:1fr 1fr
+    from {
+        width: 0;
     }
 
-    #meaning{
-        font-size:32px
+    to {
+        width: 80%;
     }
+
 }
+
+#meaning {
+    text-align: center;
+    font-size: 40px;
+    font-weight: bold;
+    margin: 20px;
+}
+
+#difficulty {
+    text-align: center;
+    color: #b7c4d8;
+}
+
+#hint {
+    text-align: center;
+    font-size: 25px;
+    letter-spacing: 4px;
+    min-height: 35px;
+}
+
+#status {
+    text-align: center;
+    min-height: 25px;
+}
+
+.center {
+    text-align: center;
+}
+
+.small {
+    color: #aebbd0;
+}
+
+@media(max-width:700px) {
+
+    .teams {
+        flex-direction: column;
+    }
+
+    .class-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #meaning {
+        font-size: 30px;
+    }
+
+}
+
 </style>
 </head>
 
 <body>
 
-<div class="wrap">
+<div class="container">
 
 <h1>⚔️ WORD ATTACK 5v5</h1>
 
 
-<!-- 로그인 -->
+<!-- =========================
+     입장
+========================= -->
+
 <div id="login" class="card">
 
-<h2>🎮 입장</h2>
+<h2>🎮 게임 입장</h2>
 
 <input
-    id="name"
+    id="playerName"
     maxlength="12"
     placeholder="닉네임"
 >
 
 <input
-    id="room"
+    id="roomCodeInput"
     maxlength="8"
     placeholder="방 코드"
 >
@@ -265,156 +308,203 @@ button:disabled{
 </button>
 
 <p class="small">
-최대 10명 · 자동 5 vs 5 · 실시간 팀전
+최대 10명 · 자동 5 vs 5
 </p>
 
 </div>
 
 
-<!-- 클래스 선택 -->
-<div id="classSelect" class="card hidden">
+<!-- =========================
+     로비
+========================= -->
 
-<h2>🧑‍🚀 클래스 선택</h2>
-
-<p class="muted">
-클래스는 게임 중 변경할 수 없어.
-</p>
-
-<div class="classgrid">
-
-<button
-    class="classbtn"
-    data-class="rusher"
-    onclick="pickClass('rusher')"
->
-<b>⚡ RUSHER</b>
-공격 +20%
-</button>
-
-<button
-    class="classbtn"
-    data-class="guardian"
-    onclick="pickClass('guardian')"
->
-<b>🛡️ GUARDIAN</b>
-받는 피해 -20%
-</button>
-
-<button
-    class="classbtn"
-    data-class="sniper"
-    onclick="pickClass('sniper')"
->
-<b>🎯 SNIPER</b>
-어려운 단어 공격 강화
-</button>
-
-<button
-    class="classbtn"
-    data-class="support"
-    onclick="pickClass('support')"
->
-<b>💚 SUPPORT</b>
-팀 HP 회복 능력
-</button>
-
-</div>
-
-<button onclick="confirmClass()">
-✅ 선택 완료
-</button>
-
-<p id="classStatus" class="small"></p>
-
-</div>
-
-
-<!-- 로비 -->
-<div id="lobby" class="hidden card">
+<div id="lobby" class="card hidden">
 
 <h2>
-🏠 방 <span id="roomCode"></span>
+🏠 방 코드:
+<span id="roomCode"></span>
 </h2>
 
 <p>
-참가자 <b id="count">0</b>/10
+참가자:
+<b id="playerCount">0</b>
+/
+10
 </p>
 
 <div
-    id="players"
-    class="players"
-></div>
+    id="lobbyPlayers"
+    class="players">
+</div>
 
-<br>
+<div class="center">
 
 <button
-    id="startBtn"
-    onclick="startGame()"
+    id="startButton"
+    onclick="startClassSelection()"
 >
 ⚔️ 게임 시작
 </button>
 
+</div>
+
 <p
-    id="lobbyMsg"
-    class="small"
-></p>
+    id="lobbyStatus"
+    class="small">
+</p>
 
 </div>
 
 
-<!-- 게임 -->
-<div id="game" class="hidden">
+<!-- =========================
+     클래스 선택
+========================= -->
+
+<div
+    id="classSelect"
+    class="card hidden">
+
+<h2 class="center">
+🧑‍🚀 CLASS SELECT
+</h2>
+
+<div id="classTimer">
+10
+</div>
+
+<div class="class-grid">
+
+<button
+    class="class-button"
+    data-class="rusher"
+    onclick="selectClass('rusher')"
+>
+
+<b>⚡ RUSHER</b>
+
+공격력 +20%
+
+</button>
 
 
-<div class="row">
+<button
+    class="class-button"
+    data-class="guardian"
+    onclick="selectClass('guardian')"
+>
+
+<b>🛡️ GUARDIAN</b>
+
+받는 피해 20% 감소
+
+</button>
 
 
-<!-- BLUE -->
+<button
+    class="class-button"
+    data-class="sniper"
+    onclick="selectClass('sniper')"
+>
+
+<b>🎯 SNIPER</b>
+
+어려운 단어 +10 데미지
+
+</button>
+
+
+<button
+    class="class-button"
+    data-class="support"
+    onclick="selectClass('support')"
+>
+
+<b>💚 SUPPORT</b>
+
+현재 팀 HP의 5% 회복
+
+</button>
+
+</div>
+
+<p
+    id="classStatus"
+    class="center">
+10초 안에 클래스를 골라!
+</p>
+
+</div>
+
+
+<!-- =========================
+     게임
+========================= -->
+
+<div
+    id="game"
+    class="hidden">
+
+
+<!-- 팀 -->
+
+<div class="teams">
+
+
 <div class="team blue">
 
 <h2>
 🔵 BLUE
-<span id="blueHpText">100</span>
+
+<span id="blueHPText">
+100
+</span>
 HP
 </h2>
 
-<div class="hpbar">
+<div class="hp-bar">
+
 <div
-    id="blueHp"
-    class="hp"
-></div>
+    id="blueHPBar"
+    class="hp blue-hp"
+    style="width:100%">
+</div>
+
 </div>
 
 <div
     id="bluePlayers"
-    class="players"
-></div>
+    class="players">
+</div>
 
 </div>
 
 
-<!-- RED -->
+
 <div class="team red">
 
 <h2>
 🔴 RED
-<span id="redHpText">100</span>
+
+<span id="redHPText">
+100
+</span>
 HP
 </h2>
 
-<div class="hpbar">
+<div class="hp-bar">
 
 <div
-    id="redHp"
-    class="hp"
-></div>
+    id="redHPBar"
+    class="hp red-hp"
+    style="width:100%">
+</div>
 
 </div>
 
 <div
     id="redPlayers"
-    class="players"
-></div>
+    class="players">
+</div>
 
 </div>
 
@@ -422,31 +512,33 @@ HP
 
 
 <!-- 전투 -->
+
 <div class="card">
 
-<div id="arena">
+<div class="arena">
 
-<div class="fighter f1">
+<div class="fighter blue-fighter">
 🧑‍🚀
 </div>
 
-<div class="fighter f2">
+<div class="fighter red-fighter">
 🤖
 </div>
 
 </div>
 
 
-<p id="question">
-초급 문제
+<p id="difficulty">
+난이도
 </p>
+
 
 <div id="meaning">
 -
 </div>
 
 
-<div style="text-align:center">
+<div class="center">
 
 <input
     id="answer"
@@ -455,16 +547,28 @@ HP
 >
 
 <button
-    id="attackBtn"
+    id="attackButton"
     onclick="submitAnswer()"
 >
 ⚡ ATTACK!
 </button>
 
+<button
+    id="hintButton"
+    onclick="useHint()"
+>
+💡 HINT
+</button>
+
 </div>
 
 
-<p id="status"></p>
+<div id="hint">
+</div>
+
+
+<p id="status">
+</p>
 
 </div>
 
@@ -475,9 +579,15 @@ HP
 
 <script type="module">
 
+
+/* =========================================================
+   Firebase
+========================================================= */
+
 import {
     initializeApp
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+} from
+"https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
 
 
 import {
@@ -488,39 +598,35 @@ import {
     update,
     onValue,
     runTransaction
-} from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
+} from
+"https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
-
-
-/* =========================
-   FIREBASE
-========================= */
 
 const firebaseConfig = {
 
     apiKey:
-    "AIzaSyD8zntMXwRxfwEuUTzETCNXoXl_a24iI5A",
+        "AIzaSyAJThRurWqXvOTXLnTmnbbMGyhA3Karfc8",
 
     authDomain:
-    "word-attack-d4d0a.firebaseapp.com",
+        "ward-gun.firebaseapp.com",
 
     databaseURL:
-    "https://word-attack-d4d0a-default-rtdb.asia-southeast1.firebasedatabase.app",
+        "https://ward-gun-default-rtdb.asia-southeast1.firebasedatabase.app",
 
     projectId:
-    "word-attack-d4d0a",
+        "ward-gun",
 
     storageBucket:
-    "word-attack-d4d0a.firebasestorage.app",
+        "ward-gun.firebasestorage.app",
 
     messagingSenderId:
-    "759642464438",
+        "271533385614",
 
     appId:
-    "1:759642464438:web:d4375af68b5cab144d8617",
+        "1:271533385614:web:7058ac44bdbd247a0ca6df",
 
     measurementId:
-    "G-5GH5X4XMLZ"
+        "G-XWC1H0TF94"
 };
 
 
@@ -532,48 +638,11 @@ const db =
 
 
 
-/* =========================
-   영어 단어
-========================= */
+/* =========================================================
+   기본 변수
+========================================================= */
 
-const WORDS = [
-
-    ["도착하다","arrive","easy"],
-    ["오다","come","easy"],
-    ["가다","go","easy"],
-    ["웃다","laugh","easy"],
-    ["학교","school","easy"],
-    ["자다","sleep","easy"],
-    ["집","house","easy"],
-    ["친구","friend","easy"],
-    ["먹다","eat","easy"],
-    ["가다","go","easy"],
-    ["달리다","run","easy"],
-    ["보다","see","easy"],
-    ["큰","big","easy"],
-    ["작은","small","easy"],
-    ["행복한","happy","easy"],
-
-    ["강요하다","consider","normal"],
-    ["가족","family","normal"],
-    ["여행","travel","normal"],
-    ["동물","animal","normal"],
-    ["아침","morning","normal"],
-
-    ["환경","environment","hard"],
-    ["모험","adventure","hard"],
-    ["갑자기","suddenly","hard"],
-    ["필요한","necessary","hard"]
-
-];
-
-
-
-/* =========================
-   변수
-========================= */
-
-let myId =
+const myId =
     crypto.randomUUID();
 
 let myName = "";
@@ -582,84 +651,157 @@ let roomId = "";
 
 let myTeam = "";
 
-let myClass = "";
-
 let roomData = null;
 
-let unsub = null;
+let unsubscribe = null;
+
+let hintUsed = false;
 
 
 
-const $ =
-    x => document.getElementById(x);
+/* =========================================================
+   영어 단어
+========================================================= */
+
+const WORDS = [
+
+    ["사과", "apple", "easy"],
+    ["바나나", "banana", "easy"],
+    ["강아지", "dog", "easy"],
+    ["고양이", "cat", "easy"],
+    ["책", "book", "easy"],
+    ["학교", "school", "easy"],
+    ["집", "house", "easy"],
+    ["물", "water", "easy"],
+    ["음식", "food", "easy"],
+    ["친구", "friend", "easy"],
+
+    ["가족", "family", "easy"],
+    ["선생님", "teacher", "easy"],
+    ["학생", "student", "easy"],
+    ["자동차", "car", "easy"],
+    ["공", "ball", "easy"],
+    ["나무", "tree", "easy"],
+    ["태양", "sun", "easy"],
+    ["달", "moon", "easy"],
+    ["비", "rain", "easy"],
+    ["눈", "snow", "easy"],
+
+    ["가다", "go", "easy"],
+    ["오다", "come", "easy"],
+    ["먹다", "eat", "easy"],
+    ["마시다", "drink", "easy"],
+    ["자다", "sleep", "easy"],
+    ["달리다", "run", "easy"],
+    ["걷다", "walk", "easy"],
+    ["보다", "see", "easy"],
+    ["읽다", "read", "easy"],
+    ["쓰다", "write", "easy"],
+
+    ["놀다", "play", "easy"],
+    ["좋아하다", "like", "easy"],
+    ["만들다", "make", "easy"],
+    ["큰", "big", "easy"],
+    ["작은", "small", "easy"],
+    ["좋은", "good", "easy"],
+    ["나쁜", "bad", "easy"],
+    ["빠른", "fast", "easy"],
+    ["느린", "slow", "easy"],
+    ["행복한", "happy", "easy"],
+
+    ["아름다운", "beautiful", "normal"],
+    ["여행", "travel", "normal"],
+    ["동물", "animal", "normal"],
+    ["아침", "morning", "normal"],
+    ["필요한", "necessary", "normal"],
+    ["재미있는", "interesting", "normal"],
+    ["중요한", "important", "normal"],
+
+    ["환경", "environment", "hard"],
+    ["모험", "adventure", "hard"],
+    ["갑자기", "suddenly", "hard"],
+    ["가능한", "possible", "hard"]
+
+];
 
 
 
-function esc(s){
+/* =========================================================
+   도우미
+========================================================= */
 
-    return String(s).replace(
-        /[&<>"']/g,
+function $(id) {
 
-        c => ({
-            "&":"&amp;",
-            "<":"&lt;",
-            ">":"&gt;",
-            '"':"&quot;",
-            "'":"&#039;"
-        }[c])
-    );
+    return document.getElementById(id);
 
 }
 
 
-
-function word(){
+function randomWord() {
 
     return WORDS[
         Math.floor(
-            Math.random() *
-            WORDS.length
+            Math.random() * WORDS.length
         )
     ];
 
 }
 
 
+function randomRoomCode() {
 
-function roomCode(){
-
-    return Math
-        .random()
+    return Math.random()
         .toString(36)
-        .slice(2,7)
+        .substring(2, 7)
         .toUpperCase();
 
 }
 
 
+function classIcon(className) {
 
-/* =========================
+    const icons = {
+
+        rusher: "⚡",
+
+        guardian: "🛡️",
+
+        sniper: "🎯",
+
+        support: "💚"
+
+    };
+
+    return icons[className] || "❔";
+
+}
+
+
+
+/* =========================================================
    방 만들기
-========================= */
+========================================================= */
 
-window.createRoom =
-async function(){
+window.createRoom = async function() {
 
     myName =
-        $("name")
+        $("playerName")
         .value
         .trim();
 
-    if(!myName){
+
+    if (!myName) {
 
         alert("닉네임을 입력해!");
 
         return;
+
     }
 
 
     roomId =
-        roomCode();
+        randomRoomCode();
+
 
     myTeam =
         "blue";
@@ -674,31 +816,23 @@ async function(){
 
         {
 
-            host:myId,
+            host: myId,
 
-            status:"lobby",
+            status: "lobby",
 
-            blueHp:100,
+            blueHP: 100,
 
-            redHp:100,
+            redHP: 100,
 
-            question:"",
+            players: {
 
-            answer:"",
+                [myId]: {
 
-            difficulty:"easy",
+                    name: myName,
 
-            round:0,
+                    team: "blue",
 
-            players:{
-
-                [myId]:{
-
-                    name:myName,
-
-                    team:"blue",
-
-                    class:""
+                    class: ""
 
                 }
 
@@ -709,46 +843,45 @@ async function(){
     );
 
 
-    showClass();
+    showLobby();
+
+    listenRoom();
 
 };
 
 
 
-/* =========================
+/* =========================================================
    방 참가
-========================= */
+========================================================= */
 
-window.joinRoom =
-async function(){
+window.joinRoom = async function() {
 
     myName =
-        $("name")
+        $("playerName")
         .value
         .trim();
 
 
     roomId =
-        $("room")
+        $("roomCodeInput")
         .value
         .trim()
         .toUpperCase();
 
 
-    if(
-        !myName ||
-        !roomId
-    ){
+    if (!myName || !roomId) {
 
         alert(
             "닉네임과 방 코드를 입력해!"
         );
 
         return;
+
     }
 
 
-    let s =
+    const snapshot =
         await get(
             ref(
                 db,
@@ -757,236 +890,141 @@ async function(){
         );
 
 
-    if(!s.exists()){
+    if (!snapshot.exists()) {
 
         alert(
-            "그 방이 없어!"
+            "그런 방이 없어!"
         );
 
         return;
+
     }
 
 
-    let d =
-        s.val();
+    const data =
+        snapshot.val();
 
 
-    let p =
-        d.players || {};
+    const players =
+        data.players || {};
 
 
-    if(
-        d.status !== "lobby"
-    ){
+    if (data.status !== "lobby") {
 
         alert(
-            "이미 시작된 방이야!"
+            "이미 게임이 시작된 방이야!"
         );
 
         return;
+
     }
 
 
-    if(
-        Object.keys(p).length >= 10
-    ){
+    if (
+        Object.keys(players).length >= 10
+    ) {
 
         alert(
             "방이 꽉 찼어!"
         );
 
         return;
+
     }
 
 
-    let blue =
-        Object.values(p)
+    const blueCount =
+        Object.values(players)
         .filter(
-            x => x.team === "blue"
+            p => p.team === "blue"
         )
         .length;
 
 
-    let red =
-        Object.values(p)
+    const redCount =
+        Object.values(players)
         .filter(
-            x => x.team === "red"
+            p => p.team === "red"
         )
         .length;
 
+
+    /*
+       사람이 적은 팀으로 자동 배정
+    */
 
     myTeam =
-        blue <= red
-        ? "blue"
-        : "red";
+        blueCount <= redCount
+            ? "blue"
+            : "red";
 
 
-    showClass();
+    await update(
+
+        ref(
+            db,
+            `rooms/${roomId}/players/${myId}`
+        ),
+
+        {
+
+            name: myName,
+
+            team: myTeam,
+
+            class: ""
+
+        }
+
+    );
+
+
+    showLobby();
+
+    listenRoom();
 
 };
 
 
 
-/* =========================
-   클래스
-========================= */
+/* =========================================================
+   로비 표시
+========================================================= */
 
-function showClass(){
+function showLobby() {
 
     $("login")
-    .classList
-    .add("hidden");
+        .classList
+        .add("hidden");
 
-    $("classSelect")
-    .classList
-    .remove("hidden");
+
+    $("lobby")
+        .classList
+        .remove("hidden");
+
+
+    $("roomCode")
+        .textContent =
+        roomId;
 
 }
 
 
 
-window.pickClass =
-function(c){
+/* =========================================================
+   Firebase 방 감시
+========================================================= */
 
-    myClass = c;
+function listenRoom() {
 
+    if (unsubscribe) {
 
-    document
-    .querySelectorAll(".classbtn")
-    .forEach(
-
-        x =>
-
-        x.classList.toggle(
-
-            "selected",
-
-            x.dataset.class === c
-
-        )
-
-    );
-
-
-    $("classStatus")
-    .textContent =
-        "선택: "
-        +
-        c.toUpperCase();
-
-};
-
-
-
-window.confirmClass =
-async function(){
-
-    if(!myClass){
-
-        alert(
-            "클래스를 골라!"
-        );
-
-        return;
-    }
-
-
-    let s =
-        await get(
-            ref(
-                db,
-                `rooms/${roomId}`
-            )
-        );
-
-
-    if(!s.exists()){
-
-        alert(
-            "방이 없어!"
-        );
-
-        return;
-    }
-
-
-    let p =
-        s.val().players || {};
-
-
-    if(!p[myId]){
-
-        await update(
-
-            ref(
-                db,
-                `rooms/${roomId}/players/${myId}`
-            ),
-
-            {
-
-                name:myName,
-
-                team:myTeam,
-
-                class:myClass
-
-            }
-
-        );
-
-    }else{
-
-        await update(
-
-            ref(
-                db,
-                `rooms/${roomId}/players/${myId}`
-            ),
-
-            {
-
-                class:myClass
-
-            }
-
-        );
+        unsubscribe();
 
     }
 
 
-    $("classSelect")
-    .classList
-    .add("hidden");
-
-
-    $("lobby")
-    .classList
-    .remove("hidden");
-
-
-    $("roomCode")
-    .textContent =
-        roomId;
-
-
-    listen();
-
-};
-
-
-
-/* =========================
-   실시간 데이터
-========================= */
-
-function listen(){
-
-    if(unsub)
-        unsub();
-
-
-    unsub =
+    unsubscribe =
         onValue(
 
             ref(
@@ -994,44 +1032,22 @@ function listen(){
                 `rooms/${roomId}`
             ),
 
-            s => {
+            snapshot => {
 
                 roomData =
-                    s.val();
+                    snapshot.val();
 
 
-                if(!roomData)
+                if (!roomData) {
+
                     return;
+
+                }
 
 
                 renderLobby();
 
-
-                if(
-
-                    roomData.status ===
-                    "playing"
-
-                    ||
-
-                    roomData.status ===
-                    "finished"
-
-                ){
-
-                    $("lobby")
-                    .classList
-                    .add("hidden");
-
-
-                    $("game")
-                    .classList
-                    .remove("hidden");
-
-
-                    renderGame();
-
-                }
+                renderGameState();
 
             }
 
@@ -1041,110 +1057,159 @@ function listen(){
 
 
 
-/* =========================
-   로비
-========================= */
+/* =========================================================
+   로비 렌더링
+========================================================= */
 
-function renderLobby(){
+function renderLobby() {
 
-    let p =
+    const players =
         roomData.players || {};
 
 
-    let a =
-        Object.entries(p);
+    const list =
+        Object.entries(players);
 
 
-    $("count")
-    .textContent =
-        a.length;
+    $("playerCount")
+        .textContent =
+        list.length;
 
 
-    $("players")
-    .innerHTML =
+    $("lobbyPlayers")
+        .innerHTML =
 
-        a.map(
+        list.map(
 
-            ([id,x]) =>
+            ([id, player]) => `
 
-            `<div class="player">
+            <div class="player">
 
-            ${x.team === "blue"
-                ? "🔵"
-                : "🔴"}
+                ${
+                    player.team === "blue"
+                    ? "🔵"
+                    : "🔴"
+                }
 
-            ${esc(x.name)}
+                ${player.name}
 
-            ${classIcon(x.class)}
+                ${classIcon(player.class)}
 
-            ${id === roomData.host
-                ? "👑"
-                : ""}
+                ${
+                    id === roomData.host
+                    ? "👑"
+                    : ""
+                }
 
-            </div>`
+            </div>
+
+            `
 
         ).join("");
 
 
-    $("startBtn")
-    .style
-    .display =
+    /*
+       방장만 시작 가능
+    */
 
+    if (
+        roomData.host === myId &&
+        roomData.status === "lobby"
+    ) {
+
+        $("startButton")
+            .style
+            .display =
+            "inline-block";
+
+    } else {
+
+        $("startButton")
+            .style
+            .display =
+            "none";
+
+    }
+
+
+    if (
         roomData.host === myId
-        ? "inline-block"
-        : "none";
+    ) {
 
+        $("lobbyStatus")
+            .textContent =
+            "방장이야! 사람이 모이면 게임을 시작해.";
 
-    $("lobbyMsg")
-    .textContent =
+    } else {
 
-        roomData.host === myId
+        $("lobbyStatus")
+            .textContent =
+            "방장이 게임을 시작할 때까지 기다려!";
 
-        ? "사람이 모이면 시작!"
-
-        : "방장이 시작할 때까지 기다려!";
+    }
 
 }
 
 
 
-/* =========================
-   클래스 아이콘
-========================= */
+/* =========================================================
+   게임 상태
+========================================================= */
 
-function classIcon(c){
+function renderGameState() {
 
-    return {
+    if (
+        roomData.status ===
+        "classSelect"
+    ) {
 
-        rusher:"⚡",
+        showClassSelection();
 
-        guardian:"🛡️",
+    }
 
-        sniper:"🎯",
 
-        support:"💚"
+    if (
+        roomData.status === "playing" ||
+        roomData.status === "finished"
+    ) {
 
-    }[c] || "❔";
+        $("lobby")
+            .classList
+            .add("hidden");
+
+
+        $("classSelect")
+            .classList
+            .add("hidden");
+
+
+        $("game")
+            .classList
+            .remove("hidden");
+
+
+        renderGame();
+
+    }
 
 }
 
 
 
-/* =========================
-   게임 시작
-========================= */
+/* =========================================================
+   클래스 선택 시작
+========================================================= */
 
-window.startGame =
-async function(){
+window.startClassSelection =
+async function() {
 
-    if(
+    if (
         roomData.host !== myId
-    )
+    ) {
+
         return;
 
-
-    let w =
-        word();
+    }
 
 
     await update(
@@ -1156,21 +1221,13 @@ async function(){
 
         {
 
-            status:"playing",
+            status: "classSelect",
 
-            blueHp:100,
+            classEndsAt:
+                Date.now() + 10000,
 
-            redHp:100,
-
-            question:w[0],
-
-            answer:w[1],
-
-            difficulty:w[2],
-
-            round:1,
-
-            lastMessage:""
+            lastMessage:
+                "🧑‍🚀 클래스 선택!"
 
         }
 
@@ -1180,145 +1237,72 @@ async function(){
 
 
 
-/* =========================
-   게임 화면
-========================= */
+/* =========================================================
+   클래스 선택 화면
+========================================================= */
 
-function renderGame(){
+function showClassSelection() {
 
-    let b =
+    $("lobby")
+        .classList
+        .add("hidden");
+
+
+    $("game")
+        .classList
+        .add("hidden");
+
+
+    $("classSelect")
+        .classList
+        .remove("hidden");
+
+
+    const remain =
         Math.max(
+
             0,
-            roomData.blueHp ?? 100
-        );
 
-
-    let r =
-        Math.max(
-            0,
-            roomData.redHp ?? 100
-        );
-
-
-    $("blueHpText")
-    .textContent = b;
-
-
-    $("redHpText")
-    .textContent = r;
-
-
-    $("blueHp")
-    .style
-    .width =
-        b + "%";
-
-
-    $("redHp")
-    .style
-    .width =
-        r + "%";
-
-
-    $("meaning")
-    .textContent =
-        roomData.question || "-";
-
-
-    $("question")
-    .textContent =
-        "난이도: "
-        +
-        String(
-            roomData.difficulty ||
-            "easy"
-        ).toUpperCase();
-
-
-    let p =
-        roomData.players || {};
-
-
-    $("bluePlayers")
-    .innerHTML =
-
-        Object.values(p)
-
-        .filter(
-            x => x.team === "blue"
-        )
-
-        .map(
-
-            x =>
-
-            `<div class="player">
-
-            ${classIcon(x.class)}
-
-            ${esc(x.name)}
-
-            </div>`
-
-        ).join("");
-
-
-    $("redPlayers")
-    .innerHTML =
-
-        Object.values(p)
-
-        .filter(
-            x => x.team === "red"
-        )
-
-        .map(
-
-            x =>
-
-            `<div class="player">
-
-            ${classIcon(x.class)}
-
-            ${esc(x.name)}
-
-            </div>`
-
-        ).join("");
-
-
-    $("status")
-    .textContent =
-        roomData.lastMessage || "";
-
-
-    if(
-        roomData.status ===
-        "finished"
-    ){
-
-        $("attackBtn")
-        .disabled = true;
-
-
-        $("answer")
-        .disabled = true;
-
-
-        $("status")
-        .textContent =
-
-            (
-
-                b <= 0
-                ? "🔴 RED"
-                : "🔵 BLUE"
-
+            Math.ceil(
+                (
+                    roomData.classEndsAt -
+                    Date.now()
+                ) / 1000
             )
 
-            +
+        );
 
-            " TEAM 승리! 🏆";
+
+    $("classTimer")
+        .textContent =
+        remain;
+
+
+    if (remain > 0) {
+
+        $("classStatus")
+            .textContent =
+            "10초 안에 클래스를 골라!";
+
+    } else {
+
+        $("classStatus")
+            .textContent =
+            "⚔️ 클래스 확정!";
+
+    }
+
+
+    /*
+       시간이 끝났으면 방장이 전투 시작
+    */
+
+    if (
+        remain <= 0 &&
+        roomData.host === myId
+    ) {
+
+        startBattle();
 
     }
 
@@ -1326,38 +1310,115 @@ function renderGame(){
 
 
 
-/* =========================
-   에너지탄
-========================= */
+/* =========================================================
+   클래스 선택
+========================================================= */
 
-function shoot(team){
+window.selectClass =
+async function(className) {
 
-    let d =
-        document.createElement(
-            "div"
-        );
+    if (
+        !roomData ||
+        roomData.status !==
+        "classSelect"
+    ) {
 
+        return;
 
-    d.className =
-        "beam "
-        +
-
-        (
-            team === "blue"
-            ? "blueBeam"
-            : "redBeam"
-        );
+    }
 
 
-    $("arena")
-    .appendChild(d);
+    /*
+       버튼 표시
+    */
+
+    document
+        .querySelectorAll(
+            ".class-button"
+        )
+        .forEach(button => {
+
+            button
+                .classList
+                .toggle(
+                    "selected",
+                    button.dataset.class ===
+                    className
+                );
+
+        });
 
 
-    setTimeout(
+    /*
+       Firebase 저장
+    */
 
-        () => d.remove(),
+    await update(
 
-        500
+        ref(
+            db,
+            `rooms/${roomId}/players/${myId}`
+        ),
+
+        {
+
+            class: className
+
+        }
+
+    );
+
+};
+
+
+
+/* =========================================================
+   실제 게임 시작
+========================================================= */
+
+async function startBattle() {
+
+    if (
+        roomData.status !==
+        "classSelect"
+    ) {
+
+        return;
+
+    }
+
+
+    const word =
+        randomWord();
+
+
+    await update(
+
+        ref(
+            db,
+            `rooms/${roomId}`
+        ),
+
+        {
+
+            status: "playing",
+
+            blueHP: 100,
+
+            redHP: 100,
+
+            question: word[0],
+
+            answer: word[1],
+
+            difficulty: word[2],
+
+            round: 1,
+
+            lastMessage:
+                "🔥 GAME START!"
+
+        }
 
     );
 
@@ -1365,49 +1426,362 @@ function shoot(team){
 
 
 
-/* =========================
-   공격
-========================= */
+/* =========================================================
+   게임 렌더링
+========================================================= */
 
-window.submitAnswer =
-async function(){
+function renderGame() {
 
-    if(
+    const blueHP =
+        Math.max(
+            0,
+            roomData.blueHP ?? 100
+        );
+
+
+    const redHP =
+        Math.max(
+            0,
+            roomData.redHP ?? 100
+        );
+
+
+    $("blueHPText")
+        .textContent =
+        blueHP;
+
+
+    $("redHPText")
+        .textContent =
+        redHP;
+
+
+    $("blueHPBar")
+        .style
+        .width =
+        blueHP + "%";
+
+
+    $("redHPBar")
+        .style
+        .width =
+        redHP + "%";
+
+
+    $("meaning")
+        .textContent =
+        roomData.question || "-";
+
+
+    $("difficulty")
+        .textContent =
+        "난이도: " +
+        String(
+            roomData.difficulty ||
+            "easy"
+        ).toUpperCase();
+
+
+    const players =
+        roomData.players || {};
+
+
+    /*
+       BLUE
+    */
+
+    $("bluePlayers")
+        .innerHTML =
+
+        Object.values(players)
+
+        .filter(
+            p => p.team === "blue"
+        )
+
+        .map(
+
+            p => `
+
+            <div class="player">
+
+                ${classIcon(p.class)}
+
+                ${p.name}
+
+            </div>
+
+            `
+
+        )
+
+        .join("");
+
+
+    /*
+       RED
+    */
+
+    $("redPlayers")
+        .innerHTML =
+
+        Object.values(players)
+
+        .filter(
+            p => p.team === "red"
+        )
+
+        .map(
+
+            p => `
+
+            <div class="player">
+
+                ${classIcon(p.class)}
+
+                ${p.name}
+
+            </div>
+
+            `
+
+        )
+
+        .join("");
+
+
+    $("status")
+        .textContent =
+        roomData.lastMessage || "";
+
+
+    /*
+       게임 종료
+    */
+
+    if (
+        roomData.status ===
+        "finished"
+    ) {
+
+        $("attackButton")
+            .disabled = true;
+
+
+        $("hintButton")
+            .disabled = true;
+
+
+        $("answer")
+            .disabled = true;
+
+
+        $("status")
+            .textContent =
+
+            blueHP <= 0
+
+                ? "🔴 RED TEAM 승리! 🏆"
+
+                : "🔵 BLUE TEAM 승리! 🏆";
+
+    }
+
+}
+
+
+
+/* =========================================================
+   총알 애니메이션
+========================================================= */
+
+function shoot(team) {
+
+    const bullet =
+        document.createElement("div");
+
+
+    bullet.className =
+        "bullet " +
+        (
+            team === "blue"
+            ? "blue-shot"
+            : "red-shot"
+        );
+
+
+    document
+        .querySelector(".arena")
+        .appendChild(
+            bullet
+        );
+
+
+    setTimeout(
+
+        () => bullet.remove(),
+
+        450
+
+    );
+
+}
+
+
+
+/* =========================================================
+   HINT
+   홀수 번째 글자 공개
+========================================================= */
+
+window.useHint =
+function() {
+
+    if (hintUsed) {
+
+        return;
+
+    }
+
+
+    if (
         !roomData ||
         roomData.status !==
         "playing"
-    )
+    ) {
+
         return;
 
+    }
 
-    let input =
+
+    hintUsed = true;
+
+
+    const answer =
+        String(
+            roomData.answer
+        ).toLowerCase();
+
+
+    let result = "";
+
+
+    for (
+        let i = 0;
+        i < answer.length;
+        i++
+    ) {
+
+        /*
+           배열 인덱스는 0부터 시작
+
+           0 = 1번째
+           2 = 3번째
+           4 = 5번째
+
+           따라서 홀수 번째 글자를 보여줌
+        */
+
+        if (
+            i % 2 === 0
+        ) {
+
+            result +=
+                answer[i];
+
+        } else {
+
+            result += "_";
+
+        }
+
+
+        if (
+            i <
+            answer.length - 1
+        ) {
+
+            result += " ";
+
+        }
+
+    }
+
+
+    $("hint")
+        .textContent =
+        "💡 " + result;
+
+
+    $("hintButton")
+        .disabled = true;
+
+
+    $("status")
+        .textContent =
+        "⚠️ 힌트 사용! 이번 공격 데미지 50% 감소";
+
+};
+
+
+
+/* =========================================================
+   공격
+========================================================= */
+
+window.submitAnswer =
+async function() {
+
+    if (
+        !roomData ||
+        roomData.status !==
+        "playing"
+    ) {
+
+        return;
+
+    }
+
+
+    const input =
         $("answer");
 
 
-    let ans =
+    const answer =
         input.value
-        .trim()
-        .toLowerCase();
+            .trim()
+            .toLowerCase();
 
 
     input.value = "";
 
 
-    if(!ans)
+    if (!answer) {
+
         return;
 
+    }
 
-    /* 오답 */
 
-    if(
-        ans !==
+    const correctAnswer =
         String(
             roomData.answer
-        ).toLowerCase()
-    ){
+        )
+        .toLowerCase();
+
+
+    /*
+       오답
+    */
+
+    if (
+        answer !==
+        correctAnswer
+    ) {
 
         $("status")
-        .textContent =
+            .textContent =
             "❌ 오답!";
 
         return;
@@ -1415,81 +1789,104 @@ async function(){
     }
 
 
+    /*
+       같은 문제를 여러 명이
+       동시에 맞히는 문제 방지
+    */
 
-    /* =========================
-       같은 문제 중복 공격 방지
-    ========================= */
-
-    let rr =
-        ref(
-            db,
-            `rooms/${roomId}/round`
-        );
-
-
-    let tx =
+    const transaction =
         await runTransaction(
 
-            rr,
+            ref(
+                db,
+                `rooms/${roomId}/round`
+            ),
 
-            n =>
+            currentRound => {
 
-                n === roomData.round
-                ? n + 1
-                : n
+                if (
+                    currentRound ===
+                    roomData.round
+                ) {
+
+                    return (
+                        currentRound + 1
+                    );
+
+                }
+
+
+                return;
+
+            }
 
         );
 
 
-    if(!tx.committed)
+    if (
+        !transaction.committed
+    ) {
+
         return;
 
+    }
 
 
-    /* =========================
-       내 정보
-    ========================= */
-
-    let p =
+    const players =
         roomData.players || {};
 
 
-    let me =
-        p[myId] || {};
+    const me =
+        players[myId];
 
 
-    let diff =
+    if (!me) {
+
+        return;
+
+    }
+
+
+    const difficulty =
         roomData.difficulty ||
         "easy";
 
 
+    /*
+       기본 데미지
+    */
+
+    let damage = 10;
+
+
+    if (
+        difficulty ===
+        "normal"
+    ) {
+
+        damage = 15;
+
+    }
+
+
+    if (
+        difficulty ===
+        "hard"
+    ) {
+
+        damage = 25;
+
+    }
+
 
     /* =========================
-       기본 데미지
+       RUSHER
     ========================= */
 
-    let damage =
-
-        diff === "hard"
-        ? 25
-
-        :
-
-        diff === "normal"
-        ? 15
-
-        :
-
-        10;
-
-
-
-    /* RUSHER */
-
-    if(
+    if (
         me.class ===
         "rusher"
-    ){
+    ) {
 
         damage =
             Math.round(
@@ -1499,57 +1896,82 @@ async function(){
     }
 
 
+    /* =========================
+       SNIPER
+    ========================= */
 
-    /* SNIPER */
-
-    if(
-
-        me.class === "sniper"
-
-        &&
-
-        diff === "hard"
-
-    ){
+    if (
+        me.class ===
+        "sniper" &&
+        difficulty ===
+        "hard"
+    ) {
 
         damage += 10;
 
     }
 
 
+    /* =========================
+       HINT
+    ========================= */
 
-    /* SUPPORT */
+    if (hintUsed) {
 
-    if(
+        damage =
+            Math.max(
+                1,
+                Math.floor(
+                    damage * 0.5
+                )
+            );
 
+    }
+
+
+    /* =========================
+       SUPPORT
+    ========================= */
+
+    if (
         me.class ===
         "support"
+    ) {
 
-        &&
-
-        Math.random() < 0.25
-
-    ){
-
-        let own =
-
+        const ownHPKey =
             myTeam === "blue"
-            ? "blueHp"
-            : "redHp";
+                ? "blueHP"
+                : "redHP";
 
 
-        let newOwn =
+        const currentHP =
+            roomData[
+                ownHPKey
+            ] ?? 100;
 
-            Math.min(
 
-                100,
+        /*
+           현재 체력의 5%
+        */
 
-                (
-                    roomData[own]
-                    ?? 100
-                ) + 10
-
+        const heal =
+            Math.max(
+                1,
+                Math.ceil(
+                    currentHP * 0.05
+                )
             );
+
+
+        const newHP =
+            Math.min(
+                100,
+                currentHP + heal
+            );
+
+
+        const nextWord =
+            randomWord();
 
 
         await update(
@@ -1561,125 +1983,108 @@ async function(){
 
             {
 
-                [own]:newOwn,
+                [ownHPKey]:
+                    newHP,
+
+                question:
+                    nextWord[0],
+
+                answer:
+                    nextWord[1],
+
+                difficulty:
+                    nextWord[2],
 
                 lastMessage:
-                    `💚 ${myName} 지원! 팀 HP +10`
+
+                    `💚 ${myName} 지원! ` +
+                    `팀 HP +${heal}`
 
             }
 
         );
 
 
+        resetHint();
+
         return;
 
     }
 
+
+    /* =========================
+       적 팀
+    ========================= */
+
+    const enemyHPKey =
+        myTeam === "blue"
+            ? "redHP"
+            : "blueHP";
+
+
+    let enemyHP =
+        roomData[
+            enemyHPKey
+        ] ?? 100;
 
 
     /* =========================
        GUARDIAN
     ========================= */
 
-    let enemyPlayers =
+    const enemyGuardians =
+        Object.values(players)
+            .filter(
 
-        Object.values(p)
+                p =>
+                    p.team !== myTeam &&
+                    p.class === "guardian"
 
-        .filter(
-            x =>
-            x.team !== myTeam
-        );
-
-
-    let guardianCount =
-
-        enemyPlayers
-
-        .filter(
-            x =>
-            x.class ===
-            "guardian"
-        )
-
-        .length;
+            )
+            .length;
 
 
-    if(
-        guardianCount > 0
-    ){
+    if (
+        enemyGuardians > 0
+    ) {
+
+        /*
+           GUARDIAN이 있으면
+           받는 피해 20% 감소
+
+           여러 명 있어도
+           과도하게 100% 감소하지 않도록
+           한 번만 적용
+        */
 
         damage =
-
             Math.max(
-
                 1,
-
                 Math.round(
-
-                    damage *
-
-                    (
-                        1 -
-
-                        0.2 /
-                        Math.max(
-                            1,
-                            guardianCount
-                        )
-
-                    )
-
+                    damage * 0.8
                 )
-
             );
 
     }
 
 
-
-    /* =========================
-       발사
-    ========================= */
-
     shoot(myTeam);
 
 
-
-    /* =========================
-       HP 계산
-    ========================= */
-
-    let enemy =
-
-        myTeam === "blue"
-        ? "redHp"
-        : "blueHp";
-
-
-    let hp =
-        roomData[enemy] ??
-        100;
-
-
-    let newHp =
-
+    const newEnemyHP =
         Math.max(
-
             0,
-
-            hp - damage
-
+            enemyHP - damage
         );
-
 
 
     /* =========================
        승리
     ========================= */
 
-    if(
-        newHp <= 0
-    ){
+    if (
+        newEnemyHP <= 0
+    ) {
 
         await update(
 
@@ -1690,30 +2095,34 @@ async function(){
 
             {
 
-                [enemy]:0,
+                [enemyHPKey]: 0,
 
-                status:"finished",
+                status:
+                    "finished",
 
                 lastMessage:
-                    `💥 ${myName}의 ${String(me.class).toUpperCase()} 공격!`
+
+                    `💥 ${myName}의 공격! ` +
+                    `${damage} DAMAGE`
 
             }
 
         );
 
 
+        resetHint();
+
         return;
 
     }
-
 
 
     /* =========================
        다음 문제
     ========================= */
 
-    let w =
-        word();
+    const nextWord =
+        randomWord();
 
 
     await update(
@@ -1725,41 +2134,98 @@ async function(){
 
         {
 
-            [enemy]:newHp,
+            [enemyHPKey]:
+                newEnemyHP,
 
-            question:w[0],
+            question:
+                nextWord[0],
 
-            answer:w[1],
+            answer:
+                nextWord[1],
 
-            difficulty:w[2],
+            difficulty:
+                nextWord[2],
 
             lastMessage:
 
-                `⚡ ${myName} 정답! ${damage} 데미지!`
+                `⚡ ${myName} 정답! ` +
+                `${damage} DAMAGE`
 
         }
 
     );
 
+
+    resetHint();
+
 };
 
 
 
-/* 엔터키 공격 */
+/* =========================================================
+   힌트 초기화
+========================================================= */
+
+function resetHint() {
+
+    hintUsed = false;
+
+
+    $("hint")
+        .textContent = "";
+
+
+    $("hintButton")
+        .disabled = false;
+
+}
+
+
+
+/* =========================================================
+   ENTER = 공격
+========================================================= */
 
 $("answer")
-.addEventListener(
+    .addEventListener(
+        "keydown",
+        event => {
 
-    "keydown",
+            if (
+                event.key ===
+                "Enter"
+            ) {
 
-    e => {
+                submitAnswer();
 
-        if(
-            e.key === "Enter"
-        )
-            submitAnswer();
+            }
 
-    }
+        }
+    );
+
+
+
+/* =========================================================
+   클래스 선택 타이머
+========================================================= */
+
+setInterval(
+
+    () => {
+
+        if (
+            roomData &&
+            roomData.status ===
+            "classSelect"
+        ) {
+
+            showClassSelection();
+
+        }
+
+    },
+
+    250
 
 );
 
