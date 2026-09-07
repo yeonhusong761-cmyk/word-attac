@@ -1378,53 +1378,33 @@ async function(className) {
 
 async function startBattle() {
 
-    if (
-        roomData.status !==
-        "classSelect"
-    ) {
-
+    if (roomData.status !== "classSelect") {
         return;
-
     }
 
+    // 문제는 방 전체가 아니라 각 플레이어에게 따로 생성한다.
+    const players = roomData.players || {};
+    const playerUpdates = {};
 
-    const word =
-        randomWord();
+    Object.keys(players).forEach(id => {
+        const word = randomWord();
 
+        playerUpdates[`players/${id}/question`] = word[0];
+        playerUpdates[`players/${id}/answer`] = word[1];
+        playerUpdates[`players/${id}/difficulty`] = word[2];
+        playerUpdates[`players/${id}/questionId`] = crypto.randomUUID();
+    });
+
+    playerUpdates.status = "playing";
+    playerUpdates.blueHP = 100;
+    playerUpdates.redHP = 100;
+    playerUpdates.lastMessage = "🔥 GAME START!";
 
     await update(
-
-        ref(
-            db,
-            `rooms/${roomId}`
-        ),
-
-        {
-
-            status: "playing",
-
-            blueHP: 100,
-
-            redHP: 100,
-
-            question: word[0],
-
-            answer: word[1],
-
-            difficulty: word[2],
-
-            round: 1,
-
-            lastMessage:
-                "🔥 GAME START!"
-
-        }
-
+        ref(db, `rooms/${roomId}`),
+        playerUpdates
     );
-
 }
-
-
 
 /* =========================================================
    게임 렌더링
@@ -1468,22 +1448,24 @@ function renderGame() {
         redHP + "%";
 
 
+    const players =
+        roomData.players || {};
+
+    // ★ 현재 접속자의 문제만 표시
+    const me =
+        players[myId];
+
     $("meaning")
         .textContent =
-        roomData.question || "-";
-
+        (me && me.question) || "-";
 
     $("difficulty")
         .textContent =
         "난이도: " +
         String(
-            roomData.difficulty ||
+            (me && me.difficulty) ||
             "easy"
         ).toUpperCase();
-
-
-    const players =
-        roomData.players || {};
 
 
     /*
@@ -1658,9 +1640,19 @@ function() {
     hintUsed = true;
 
 
+    const players =
+        roomData.players || {};
+
+    const me =
+        players[myId];
+
+    if (!me) {
+        return;
+    }
+
     const answer =
         String(
-            roomData.answer
+            me.answer || ""
         ).toLowerCase();
 
 
@@ -1733,433 +1725,215 @@ function() {
 window.submitAnswer =
 async function() {
 
-    if (
-        !roomData ||
-        roomData.status !==
-        "playing"
-    ) {
-
+    if (!roomData || roomData.status !== "playing") {
         return;
-
     }
 
-
-    const input =
-        $("answer");
-
+    const input = $("answer");
 
     const answer =
-        input.value
-            .trim()
-            .toLowerCase();
-
+        input.value.trim().toLowerCase();
 
     input.value = "";
 
-
     if (!answer) {
-
         return;
-
     }
 
-
-    const correctAnswer =
-        String(
-            roomData.answer
-        )
-        .toLowerCase();
-
-
-    /*
-       오답
-    */
-
-    if (
-        answer !==
-        correctAnswer
-    ) {
-
-        $("status")
-            .textContent =
-            "❌ 오답!";
-
-        return;
-
-    }
-
-
-    /*
-       같은 문제를 여러 명이
-       동시에 맞히는 문제 방지
-    */
-
-    const transaction =
-        await runTransaction(
-
-            ref(
-                db,
-                `rooms/${roomId}/round`
-            ),
-
-            currentRound => {
-
-                if (
-                    currentRound ===
-                    roomData.round
-                ) {
-
-                    return (
-                        currentRound + 1
-                    );
-
-                }
-
-
-                return;
-
-            }
-
-        );
-
-
-    if (
-        !transaction.committed
-    ) {
-
-        return;
-
-    }
-
-
-    const players =
-        roomData.players || {};
-
-
-    const me =
-        players[myId];
-
+    const players = roomData.players || {};
+    const me = players[myId];
 
     if (!me) {
-
         return;
-
     }
 
+    // ★ 내 문제의 정답만 검사
+    const correctAnswer =
+        String(me.answer || "").toLowerCase();
 
-    const difficulty =
-        roomData.difficulty ||
-        "easy";
+    if (answer !== correctAnswer) {
+        $("status").textContent = "❌ 오답!";
+        return;
+    }
 
+    // 같은 문제를 빠르게 여러 번 제출하는 것 방지
+    const questionId = me.questionId;
 
-    /*
-       기본 데미지
-    */
+    if (!questionId) {
+        return;
+    }
 
+    const claim =
+        await runTransaction(
+            ref(db, `rooms/${roomId}/players/${myId}/questionId`),
+            currentId => {
+                if (currentId === questionId) {
+                    return "__processing__";
+                }
+                return;
+            }
+        );
+
+    if (!claim.committed) {
+        return;
+    }
+
+    const difficulty = me.difficulty || "easy";
     let damage = 10;
 
-
-    if (
-        difficulty ===
-        "normal"
-    ) {
-
+    if (difficulty === "normal") {
         damage = 15;
-
     }
 
-
-    if (
-        difficulty ===
-        "hard"
-    ) {
-
+    if (difficulty === "hard") {
         damage = 25;
-
     }
 
-
-    /* =========================
-       RUSHER
-    ========================= */
-
-    if (
-        me.class ===
-        "rusher"
-    ) {
-
-        damage =
-            Math.round(
-                damage * 1.2
-            );
-
+    // RUSHER
+    if (me.class === "rusher") {
+        damage = Math.round(damage * 1.2);
     }
 
-
-    /* =========================
-       SNIPER
-    ========================= */
-
-    if (
-        me.class ===
-        "sniper" &&
-        difficulty ===
-        "hard"
-    ) {
-
+    // SNIPER
+    if (me.class === "sniper" && difficulty === "hard") {
         damage += 10;
-
     }
 
-
-    /* =========================
-       HINT
-    ========================= */
-
+    // HINT
     if (hintUsed) {
-
         damage =
             Math.max(
                 1,
-                Math.floor(
-                    damage * 0.5
-                )
+                Math.floor(damage * 0.5)
             );
-
     }
 
-
-    /* =========================
-       SUPPORT
-    ========================= */
-
-    if (
-        me.class ===
-        "support"
-    ) {
+    // SUPPORT: 팀 HP는 공유, 다음 문제는 나에게만 생성
+    if (me.class === "support") {
 
         const ownHPKey =
             myTeam === "blue"
                 ? "blueHP"
                 : "redHP";
 
+        const healResult =
+            await runTransaction(
+                ref(db, `rooms/${roomId}/${ownHPKey}`),
+                currentHP => {
+                    currentHP = currentHP ?? 100;
 
-        const currentHP =
-            roomData[
-                ownHPKey
-            ] ?? 100;
+                    const heal =
+                        Math.max(
+                            1,
+                            Math.ceil(currentHP * 0.05)
+                        );
 
-
-        /*
-           현재 체력의 5%
-        */
-
-        const heal =
-            Math.max(
-                1,
-                Math.ceil(
-                    currentHP * 0.05
-                )
+                    return Math.min(
+                        100,
+                        currentHP + heal
+                    );
+                }
             );
 
+        if (!healResult.committed) {
+            return;
+        }
 
-        const newHP =
-            Math.min(
-                100,
-                currentHP + heal
-            );
-
-
-        const nextWord =
-            randomWord();
-
+        const nextWord = randomWord();
 
         await update(
-
-            ref(
-                db,
-                `rooms/${roomId}`
-            ),
-
+            ref(db, `rooms/${roomId}/players/${myId}`),
             {
-
-                [ownHPKey]:
-                    newHP,
-
-                question:
-                    nextWord[0],
-
-                answer:
-                    nextWord[1],
-
-                difficulty:
-                    nextWord[2],
-
-                lastMessage:
-
-                    `💚 ${myName} 지원! ` +
-                    `팀 HP +${heal}`
-
+                question: nextWord[0],
+                answer: nextWord[1],
+                difficulty: nextWord[2],
+                questionId: crypto.randomUUID()
             }
-
         );
-
 
         resetHint();
 
+        $("status").textContent =
+            `💚 ${myName} 지원! 팀 HP 회복`;
+
         return;
-
     }
-
-
-    /* =========================
-       적 팀
-    ========================= */
 
     const enemyHPKey =
         myTeam === "blue"
             ? "redHP"
             : "blueHP";
 
-
-    let enemyHP =
-        roomData[
-            enemyHPKey
-        ] ?? 100;
-
-
-    /* =========================
-       GUARDIAN
-    ========================= */
-
+    // 적 팀 GUARDIAN 적용
     const enemyGuardians =
         Object.values(players)
             .filter(
-
                 p =>
                     p.team !== myTeam &&
                     p.class === "guardian"
-
             )
             .length;
 
-
-    if (
-        enemyGuardians > 0
-    ) {
-
-        /*
-           GUARDIAN이 있으면
-           받는 피해 20% 감소
-
-           여러 명 있어도
-           과도하게 100% 감소하지 않도록
-           한 번만 적용
-        */
-
+    if (enemyGuardians > 0) {
         damage =
             Math.max(
                 1,
-                Math.round(
-                    damage * 0.8
-                )
+                Math.round(damage * 0.8)
             );
-
     }
-
 
     shoot(myTeam);
 
-
-    const newEnemyHP =
-        Math.max(
-            0,
-            enemyHP - damage
-        );
-
-
-    /* =========================
-       승리
-    ========================= */
-
-    if (
-        newEnemyHP <= 0
-    ) {
-
-        await update(
-
-            ref(
-                db,
-                `rooms/${roomId}`
-            ),
-
-            {
-
-                [enemyHPKey]: 0,
-
-                status:
-                    "finished",
-
-                lastMessage:
-
-                    `💥 ${myName}의 공격! ` +
-                    `${damage} DAMAGE`
-
+    // ★ 팀 HP는 공유하되 transaction으로 동시 공격도 안전하게 처리
+    const hpResult =
+        await runTransaction(
+            ref(db, `rooms/${roomId}/${enemyHPKey}`),
+            currentHP => {
+                currentHP = currentHP ?? 100;
+                return Math.max(
+                    0,
+                    currentHP - damage
+                );
             }
-
         );
 
-
-        resetHint();
-
+    if (!hpResult.committed) {
         return;
-
     }
 
+    const newEnemyHP =
+        hpResult.snapshot.val();
 
-    /* =========================
-       다음 문제
-    ========================= */
+    if (newEnemyHP <= 0) {
 
-    const nextWord =
-        randomWord();
+        await update(
+            ref(db, `rooms/${roomId}`),
+            {
+                status: "finished",
+                lastMessage:
+                    `💥 ${myName}의 공격! ${damage} DAMAGE`
+            }
+        );
 
+        resetHint();
+        return;
+    }
+
+    // ★ 정답을 맞힌 사람만 자기 다음 문제를 받는다.
+    const nextWord = randomWord();
 
     await update(
-
-        ref(
-            db,
-            `rooms/${roomId}`
-        ),
-
+        ref(db, `rooms/${roomId}/players/${myId}`),
         {
-
-            [enemyHPKey]:
-                newEnemyHP,
-
-            question:
-                nextWord[0],
-
-            answer:
-                nextWord[1],
-
-            difficulty:
-                nextWord[2],
-
-            lastMessage:
-
-                `⚡ ${myName} 정답! ` +
-                `${damage} DAMAGE`
-
+            question: nextWord[0],
+            answer: nextWord[1],
+            difficulty: nextWord[2],
+            questionId: crypto.randomUUID()
         }
-
     );
 
-
     resetHint();
-
 };
-
 
 
 /* =========================================================
