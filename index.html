@@ -130,7 +130,7 @@ button:disabled {
 
 .class-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 12px;
 }
 
@@ -241,6 +241,48 @@ button:disabled {
 #status {
     text-align: center;
     min-height: 25px;
+}
+
+
+/* 전투 효과 */
+
+#battleEffect {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: none;
+    pointer-events: none;
+    background: rgba(120, 80, 255, 0.16);
+    backdrop-filter: blur(2px);
+    animation: confusionShake 0.12s infinite;
+}
+
+#battleEffect.show {
+    display: block;
+}
+
+#battleEffect .effectText {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) rotate(-3deg);
+    font-size: clamp(32px, 7vw, 80px);
+    font-weight: 900;
+    text-shadow: 0 0 18px rgba(255,255,255,.8);
+}
+
+@keyframes confusionShake {
+    0% { transform: translate(0, 0) rotate(0deg); }
+    25% { transform: translate(4px, -2px) rotate(.5deg); }
+    50% { transform: translate(-4px, 3px) rotate(-.5deg); }
+    75% { transform: translate(2px, 2px) rotate(.4deg); }
+    100% { transform: translate(0, 0) rotate(0deg); }
+}
+
+#debuffStatus {
+    text-align: center;
+    min-height: 22px;
+    font-weight: bold;
 }
 
 .center {
@@ -425,6 +467,78 @@ button:disabled {
 
 </button>
 
+<button
+    class="class-button"
+    data-class="confuser"
+    onclick="selectClass('confuser')"
+>
+
+<b>🌀 CONFUSER</b>
+
+공격 성공 시 상대 화면 혼란 1초
+
+</button>
+
+<button
+    class="class-button"
+    data-class="debuff"
+    onclick="selectClass('debuff')"
+>
+
+<b>🧪 DEBUFFER</b>
+
+공격 성공 시 상대 팀 공격력 감소 5~10초
+
+</button>
+
+<button
+    class="class-button"
+    data-class="chaos"
+    onclick="selectClass('chaos')"
+>
+
+<b>🎲 CHAOS</b>
+
+데미지 증가 / 감소 / 회복 / 피해 중 랜덤
+
+</button>
+
+<button
+    class="class-button"
+    data-class="mirror"
+    onclick="selectClass('mirror')"
+>
+
+<b>🪞 MIRROR</b>
+
+공격받을 때 20% 확률로 피해 일부 반사
+
+</button>
+
+<button
+    class="class-button"
+    data-class="king"
+    onclick="selectClass('king')"
+>
+
+<b>👑 KING</b>
+
+팀원이 많을수록 자신에게 약간의 보너스
+
+</button>
+
+<button
+    class="class-button"
+    data-class="equalizer"
+    onclick="selectClass('equalizer')"
+>
+
+<b>⚖️ EQUALIZER</b>
+
+5번째 공격마다 20% 확률로 상대 HP를 우리 HP와 같게
+
+</button>
+
 </div>
 
 <p
@@ -570,6 +684,8 @@ HP
 <p id="status">
 </p>
 
+<p id="debuffStatus"></p>
+
 </div>
 
 </div>
@@ -665,6 +781,7 @@ let hintUsed = false;
 
 const WORDS = [
 
+    ["사과", "apple", "easy"],
     ["얼음같이 찬", "icy", "easy"],
     ["바나나", "banana", "easy"],
     ["강아지", "dog", "easy"],
@@ -672,6 +789,7 @@ const WORDS = [
     ["책", "book", "easy"],
     ["물개", "seal", "easy"],
     ["학교", "school", "easy"],
+    ["집", "house", "easy"],
     ["투명한", "clear", "easy"],
     ["물", "water", "easy"],
     ["음식", "food", "easy"],
@@ -725,7 +843,7 @@ const WORDS = [
     ["환경", "environment", "hard"],
     ["모험", "adventure", "hard"],
     ["갑자기", "suddenly", "hard"],
-    ["가능한", "possible", "hard"]
+    ["가능한", "possible", "hard"],
     ["오해하다", "misunderstood", "hard"]
 
 ];
@@ -769,12 +887,15 @@ function classIcon(className) {
     const icons = {
 
         rusher: "⚡",
-
         guardian: "🛡️",
-
         sniper: "🎯",
-
-        support: "💚"
+        support: "💚",
+        confuser: "🌀",
+        debuff: "🧪",
+        chaos: "🎲",
+        mirror: "🪞",
+        king: "👑",
+        equalizer: "⚖️"
 
     };
 
@@ -829,6 +950,12 @@ window.createRoom = async function() {
             blueHP: 100,
 
             redHP: 100,
+
+            attackCount: 0,
+
+            confusionUntil: {},
+
+            debuffs: {},
 
             players: {
 
@@ -1379,6 +1506,33 @@ async function(className) {
 
 
 /* =========================================================
+   직업 효과 도우미
+========================================================= */
+
+function teamHPKey(team) {
+    return team === "blue" ? "blueHP" : "redHP";
+}
+
+function enemyTeamOf(team) {
+    return team === "blue" ? "red" : "blue";
+}
+
+function teamCount(players, team) {
+    return Object.values(players || {})
+        .filter(p => p.team === team).length;
+}
+
+function getKingBonus(players, me) {
+    if (!me || me.class !== "king") return 1;
+    const count = teamCount(players, me.team);
+    return 1 + Math.max(0, count - 1) * 0.05;
+}
+
+async function setTeamEffect(path, value) {
+    await update(ref(db, `rooms/${roomId}`), { [path]: value });
+}
+
+/* =========================================================
    실제 게임 시작
 ========================================================= */
 
@@ -1401,10 +1555,17 @@ async function startBattle() {
         playerUpdates[`players/${id}/questionId`] = crypto.randomUUID();
     });
 
+    // 팀 인원수에 따라 최대 HP 결정: 100 + 10 × 팀 인원수
+    const blueCount = Object.values(players).filter(p => p.team === "blue").length;
+    const redCount = Object.values(players).filter(p => p.team === "red").length;
+
     playerUpdates.status = "playing";
-    playerUpdates.blueHP = 100;
-    playerUpdates.redHP = 100;
-    playerUpdates.lastMessage = "🔥 GAME START!";
+    playerUpdates.blueHP = 100 + 10 * blueCount;
+    playerUpdates.redHP = 100 + 10 * redCount;
+    playerUpdates.attackCount = 0;
+    playerUpdates.confusionUntil = {};
+    playerUpdates.debuffs = {};
+    playerUpdates.lastMessage = `🔥 GAME START! BLUE ${playerUpdates.blueHP} HP / RED ${playerUpdates.redHP} HP`;
 
     await update(
         ref(db, `rooms/${roomId}`),
@@ -1541,6 +1702,20 @@ function renderGame() {
     $("status")
         .textContent =
         roomData.lastMessage || "";
+
+    // CONFUSER: 내 팀이 공격받아 혼란 상태라면 1초 동안 표시
+    const confusionUntil = roomData.confusionUntil || {};
+    const confused = Number(confusionUntil[myTeam] || 0) > Date.now();
+    $("battleEffect").classList.toggle("show", confused);
+
+    const debuffs = roomData.debuffs || {};
+    const myDebuff = debuffs[myTeam];
+    if (myDebuff && Number(myDebuff.until || 0) > Date.now()) {
+        $("debuffStatus").textContent =
+            `🧪 ${myDebuff.label} (${Math.max(0, Math.ceil((myDebuff.until - Date.now()) / 1000))}초)`;
+    } else {
+        $("debuffStatus").textContent = "";
+    }
 
 
     /*
@@ -1736,64 +1911,35 @@ async function() {
     }
 
     const input = $("answer");
-
-    const answer =
-        input.value.trim().toLowerCase();
-
+    const answer = input.value.trim().toLowerCase();
     input.value = "";
 
-    if (!answer) {
-        return;
-    }
+    if (!answer) return;
 
     const players = roomData.players || {};
     const me = players[myId];
+    if (!me) return;
 
-    if (!me) {
-        return;
-    }
-
-    // ★ 내 문제의 정답만 검사
-    const correctAnswer =
-        String(me.answer || "").toLowerCase();
-
+    // 내 문제의 정답만 검사
+    const correctAnswer = String(me.answer || "").toLowerCase();
     if (answer !== correctAnswer) {
         $("status").textContent = "❌ 오답!";
         return;
     }
 
-    // 같은 문제를 빠르게 여러 번 제출하는 것 방지
     const questionId = me.questionId;
+    if (!questionId) return;
 
-    if (!questionId) {
-        return;
-    }
+    // 같은 문제 중복 제출 방지
+    const claim = await runTransaction(
+        ref(db, `rooms/${roomId}/players/${myId}/questionId`),
+        currentId => currentId === questionId ? "__processing__" : undefined
+    );
 
-    const claim =
-        await runTransaction(
-            ref(db, `rooms/${roomId}/players/${myId}/questionId`),
-            currentId => {
-                if (currentId === questionId) {
-                    return "__processing__";
-                }
-                return;
-            }
-        );
-
-    if (!claim.committed) {
-        return;
-    }
+    if (!claim.committed) return;
 
     const difficulty = me.difficulty || "easy";
-    let damage = 10;
-
-    if (difficulty === "normal") {
-        damage = 15;
-    }
-
-    if (difficulty === "hard") {
-        damage = 25;
-    }
+    let damage = difficulty === "hard" ? 25 : difficulty === "normal" ? 15 : 10;
 
     // RUSHER
     if (me.class === "rusher") {
@@ -1805,140 +1951,149 @@ async function() {
         damage += 10;
     }
 
+    // KING: 팀원이 많을수록 공격 보너스
+    damage = Math.max(1, Math.round(damage * getKingBonus(players, me)));
+
     // HINT
     if (hintUsed) {
-        damage =
-            Math.max(
-                1,
-                Math.floor(damage * 0.5)
-            );
+        damage = Math.max(1, Math.floor(damage * 0.5));
     }
 
-    // SUPPORT: 팀 HP는 공유, 다음 문제는 나에게만 생성
-    if (me.class === "support") {
+    const enemyTeam = enemyTeamOf(myTeam);
+    const ownHPKey = teamHPKey(myTeam);
+    const enemyHPKey = teamHPKey(enemyTeam);
 
-        const ownHPKey =
-            myTeam === "blue"
-                ? "blueHP"
-                : "redHP";
-
-        const healResult =
-            await runTransaction(
-                ref(db, `rooms/${roomId}/${ownHPKey}`),
-                currentHP => {
-                    currentHP = currentHP ?? 100;
-
-                    const heal =
-                        Math.max(
-                            1,
-                            Math.ceil(currentHP * 0.05)
-                        );
-
-                    return Math.min(
-                        100,
-                        currentHP + heal
-                    );
-                }
-            );
-
-        if (!healResult.committed) {
-            return;
-        }
-
-        const nextWord = randomWord();
-
-        await update(
-            ref(db, `rooms/${roomId}/players/${myId}`),
-            {
-                question: nextWord[0],
-                answer: nextWord[1],
-                difficulty: nextWord[2],
-                questionId: crypto.randomUUID()
-            }
-        );
-
-        resetHint();
-
-        $("status").textContent =
-            `💚 ${myName} 지원! 팀 HP 회복`;
-
-        return;
+    // DEBUFFER: 상대 팀에 걸린 공격력 감소
+    const activeDebuff = (roomData.debuffs || {})[myTeam];
+    if (activeDebuff && Number(activeDebuff.until || 0) > Date.now() && activeDebuff.type === "weak") {
+        damage = Math.max(1, Math.floor(damage * 0.7));
     }
 
-    const enemyHPKey =
-        myTeam === "blue"
-            ? "redHP"
-            : "blueHP";
-
-    // 적 팀 GUARDIAN 적용
-    const enemyGuardians =
-        Object.values(players)
-            .filter(
-                p =>
-                    p.team !== myTeam &&
-                    p.class === "guardian"
-            )
-            .length;
+    // 상대 GUARDIAN 수에 따른 피해 감소
+    const enemyGuardians = Object.values(players)
+        .filter(p => p.team === enemyTeam && p.class === "guardian")
+        .length;
 
     if (enemyGuardians > 0) {
-        damage =
-            Math.max(
-                1,
-                Math.round(damage * 0.8)
-            );
+        // 1명당 20% 감소, 5명이어도 완전 무적은 아니게 최대 80% 감소
+        const reduction = Math.min(0.8, enemyGuardians * 0.2);
+        damage = Math.max(1, Math.round(damage * (1 - reduction)));
+    }
+
+    // CHAOS: 성공한 공격마다 4가지 효과 중 하나
+    let chaosMessage = "";
+    if (me.class === "chaos") {
+        const effects = ["damageUp", "damageDown", "heal", "hurt"];
+        const effect = effects[Math.floor(Math.random() * effects.length)];
+
+        if (effect === "damageUp") {
+            damage = Math.round(damage * 1.5);
+            chaosMessage = "🎲 CHAOS: 데미지 증가!";
+        } else if (effect === "damageDown") {
+            damage = Math.max(1, Math.floor(damage * 0.5));
+            chaosMessage = "🎲 CHAOS: 데미지 감소...";
+        } else if (effect === "heal") {
+            await runTransaction(ref(db, `rooms/${roomId}/${ownHPKey}`), currentHP => {
+                currentHP = currentHP ?? 100;
+                return Math.min(150, currentHP + 10);
+            });
+            chaosMessage = "🎲 CHAOS: 우리 팀 HP +10!";
+        } else {
+            damage += 10;
+            chaosMessage = "🎲 CHAOS: 추가 피해 +10!";
+        }
     }
 
     shoot(myTeam);
 
-    // ★ 팀 HP는 공유하되 transaction으로 동시 공격도 안전하게 처리
-    const hpResult =
-        await runTransaction(
-            ref(db, `rooms/${roomId}/${enemyHPKey}`),
-            currentHP => {
-                currentHP = currentHP ?? 100;
-                return Math.max(
-                    0,
-                    currentHP - damage
-                );
-            }
-        );
+    // 실제 적 팀 HP 감소
+    const hpResult = await runTransaction(
+        ref(db, `rooms/${roomId}/${enemyHPKey}`),
+        currentHP => Math.max(0, (currentHP ?? 100) - damage)
+    );
 
-    if (!hpResult.committed) {
-        return;
+    if (!hpResult.committed) return;
+
+    // 공격 횟수 증가. EQUALIZER의 '5번째 공격' 판정 기준
+    const countResult = await runTransaction(
+        ref(db, `rooms/${roomId}/attackCount`),
+        current => (current ?? 0) + 1
+    );
+    const attackCount = countResult.snapshot.val() || 0;
+
+    // CONFUSER: 상대 팀 전체 화면을 1초간 혼란
+    if (me.class === "confuser") {
+        await setTeamEffect(`confusionUntil/${enemyTeam}`, Date.now() + 1000);
     }
 
-    const newEnemyHP =
-        hpResult.snapshot.val();
+    // DEBUFFER: 상대 팀 공격력 30% 감소, 5~10초
+    if (me.class === "debuff") {
+        const duration = 5000 + Math.floor(Math.random() * 5001);
+        await setTeamEffect(`debuffs/${enemyTeam}`, {
+            type: "weak",
+            label: "공격력 30% 감소",
+            until: Date.now() + duration
+        });
+    }
+
+    // MIRROR: 공격받은 팀의 MIRROR가 20% 확률로 피해 일부 반사
+    const mirrorCount = Object.values(players)
+        .filter(p => p.team === enemyTeam && p.class === "mirror")
+        .length;
+
+    if (mirrorCount > 0 && Math.random() < 0.20) {
+        const reflected = Math.max(1, Math.floor(damage * 0.5));
+        await runTransaction(ref(db, `rooms/${roomId}/${ownHPKey}`), currentHP =>
+            Math.max(0, (currentHP ?? 100) - reflected)
+        );
+        $("status").textContent = `🪞 MIRROR 발동! ${reflected} 피해 반사!`;
+    }
+
+    // EQUALIZER: 5번째 공격마다 20% 확률
+    if (me.class === "equalizer" && attackCount % 5 === 0 && Math.random() < 0.20) {
+        const ownSnapshot = await get(ref(db, `rooms/${roomId}/${ownHPKey}`));
+        const ownHP = ownSnapshot.val() ?? 0;
+
+        await runTransaction(ref(db, `rooms/${roomId}/${enemyHPKey}`), currentHP => {
+            // 이미 더 낮아졌다면 우리 HP로 맞춘다. 최대 150까지 가능.
+            return Math.max(0, Math.min(150, ownHP));
+        });
+
+        $("status").textContent = `⚖️ EQUALIZER 발동! 상대 팀 HP → ${ownHP}`;
+    }
+
+    // 현재 적 HP 확인
+    const latestEnemy = await get(ref(db, `rooms/${roomId}/${enemyHPKey}`));
+    const newEnemyHP = latestEnemy.val() ?? 0;
 
     if (newEnemyHP <= 0) {
-
-        await update(
-            ref(db, `rooms/${roomId}`),
-            {
-                status: "finished",
-                lastMessage:
-                    `💥 ${myName}의 공격! ${damage} DAMAGE`
-            }
-        );
-
+        await update(ref(db, `rooms/${roomId}`), {
+            status: "finished",
+            lastMessage: `💥 ${myName}의 공격! ${damage} DAMAGE`
+        });
         resetHint();
         return;
     }
 
-    // ★ 정답을 맞힌 사람만 자기 다음 문제를 받는다.
+    // 정답을 맞힌 사람만 자기 다음 문제를 받는다.
     const nextWord = randomWord();
-
-    await update(
-        ref(db, `rooms/${roomId}/players/${myId}`),
-        {
-            question: nextWord[0],
-            answer: nextWord[1],
-            difficulty: nextWord[2],
-            questionId: crypto.randomUUID()
-        }
-    );
+    await update(ref(db, `rooms/${roomId}/players/${myId}`), {
+        question: nextWord[0],
+        answer: nextWord[1],
+        difficulty: nextWord[2],
+        questionId: crypto.randomUUID()
+    });
 
     resetHint();
+
+    const messages = [];
+    if (chaosMessage) messages.push(chaosMessage);
+    if (me.class === "confuser") messages.push("🌀 상대 화면 혼란 1초!");
+    if (me.class === "debuff") messages.push("🧪 상대 팀 공격력 30% 감소!");
+    if (me.class === "equalizer" && attackCount % 5 === 0) messages.push("⚖️ 5번째 공격 판정!");
+
+    $("status").textContent =
+        messages.length ? messages.join(" ") : `⚡ ${damage} DAMAGE!`;
 };
 
 
